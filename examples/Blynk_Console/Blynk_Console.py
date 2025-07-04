@@ -30,9 +30,9 @@ import machine
 import time
 
 # Fill in information from Blynk Device Info here
-WIFI_SSID = 'LilyGo-AABB'
-WIFI_PASS = 'xinyuandianzi'
-BLYNK_AUTH = 'MSuP9IBAtT_lBlhxmf-ist6z0T7sjRJA'
+WIFI_SSID = 'your WIFI_SSID'
+WIFI_PASS = 'your WIFI_PASS'
+BLYNK_AUTH = 'your BLYNK_AUTH'
 
 LED_PIN = 12 
 led = machine.Pin(LED_PIN, machine.Pin.OUT)

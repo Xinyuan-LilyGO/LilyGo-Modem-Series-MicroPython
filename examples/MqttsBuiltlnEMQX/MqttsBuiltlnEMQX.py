@@ -1,8 +1,8 @@
 '''
-#   @file      MqttsBuiltlnAuth.py
+#   @file      MqttsBuiltlnEMQX.py
 #   @license   MIT
 #   @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
-#   @date      2025-06-18
+#   @date      2025-07-09
 #   @note
 #   Example is suitable for A7670X/A7608X/SIM7672 series
 #   Connect MQTT Broker as https://www.emqx.com/zh/mqtt/public-mqtt5-broker
@@ -63,12 +63,12 @@ def check_modem():
             print()  # Print a newline for clarity
             break
         else:
-            print(".", end="", flush=True)  # Print dots until modem responds
+            print(".", end="")  # Print dots until modem responds
 
 # Function to verify SIM status
 def check_sim():
     while True:
-        sim_status = send_at_command("AT+CPIN?")  # Check the SIM PIN status
+        sim_status = send_at_command("AT+CPIN?",wait=2)  # Check the SIM PIN status
         if "READY" in sim_status:  # SIM is ready to use
             print("SIM card online")
             break
@@ -82,12 +82,13 @@ def check_sim():
 def connect_network(apn):
     send_at_command(f"AT+CGDCONT=1,\"IP\",\"{apn}\"")  # Set the PDP context
     send_at_command("AT+CGATT=1")  # Attach to the GPRS network
-    response = send_at_command("AT+NETOPEN")  # Open the network connection
-    if "OK" in response or "+NETOPEN: 0" in response:  # Check for successful connection
-        print("Online registration successful")
-    else:
-        print("Network registration was rejected, please check if the APN is correct")
-        return
+    while True:
+        response = send_at_command("AT+NETOPEN",wait=3)  # Open the network connection
+        if "OK" in response or "+NETOPEN: 0" in response:  # Check for successful connection
+            print("Online registration successful")
+            break
+        else:
+            print("Network registration was rejected, please check if the APN is correct")
     # Get the IP address assigned to the device
     ip_response = send_at_command("AT+IPADDR")
     if ip_response:
@@ -296,11 +297,8 @@ def main():
                 current_millis = time.ticks_ms()  # Get current time in milliseconds
                 if current_millis > check_connect_millis:
                     check_connect_millis = current_millis + 10000  # Check every 10 seconds
-                    if not mqtt_connected():  # If not connected, attempt to reconnect
-                        mqtt_connecting(client_index, mqtt_broker, mqtt_port, mqtt_client_id, ssl)
-                    else:
-                        payload = "RunTime:" + str(current_millis // 1000)  # Prepare payload with runtime
-                        mqtt_publish(client_index, mqtt_publish_topic, payload)  # Publish the payload
+                    payload = "RunTime:" + str(current_millis // 1000)  # Prepare payload with runtime
+                    mqtt_publish(client_index, mqtt_publish_topic, payload)  # Publish the payload
                 time.sleep(0.005)  # Small delay to avoid busy loop
         except KeyboardInterrupt:
             print("Exiting MQTT loop...")  # Handle exit gracefully

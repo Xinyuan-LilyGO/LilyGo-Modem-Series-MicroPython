@@ -2,7 +2,7 @@
 #   @file      Network.py
 #   @license   MIT
 #   @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
-#   @date      2025-06-14
+#   @date      2025-07-07
 '''
 import time
 import machine
@@ -33,9 +33,9 @@ def modem_reset():
     machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(1)
     time.sleep(2)
 
-def send_at_command(command):
+def send_at_command(command,wait=1):
     uart.write(command + "\r")
-    time.sleep(1)
+    time.sleep(wait)
     response = uart.read()
     if response:
         return response.decode("utf-8", "ignore").strip()
@@ -50,12 +50,12 @@ def check_modem():
             print()  # Print a newline for clarity
             break
         else:
-            print(".", end="", flush=True)
+            print(".", end="")
             
 # Check SIM status
 def check_sim():
     while True:
-        sim_status = send_at_command("AT+CPIN?")
+        sim_status = send_at_command("AT+CPIN?",wait=2)
         if "READY" in sim_status:
             print("SIM card online")
             break
@@ -66,12 +66,14 @@ def check_sim():
 def connect_network(apn):
     send_at_command(f"AT+CGDCONT=1,\"IP\",\"{apn}\"")
     send_at_command("AT+CGATT=1")  # Attach to the GPRS
-    response = send_at_command("AT+NETOPEN")
-    if "OK" in response or "+NETOPEN: 0" in response:
-        print("Online registration successful")
-    else:
-        print("Network registration was rejected, please check if the APN is correct")
-        return
+    while True:
+        response = send_at_command("AT+NETOPEN",wait=3)
+        if "OK" in response or "+NETOPEN: 0" in response:
+            print("Online registration successful")
+            break
+        else:
+            print("Network registration was rejected, please check if the APN is correct")
+#             return
 
     # Get the IP address
     ip_response = send_at_command("AT+IPADDR")
@@ -96,8 +98,7 @@ def main():
     url= "www.baidu.com"
     for i in range(20):
         command = f'AT+CPING="{url}",{dest_addr_type},{1},{data_packet_size},{interval_time},{wait_time}'
-        response = send_at_command(command)
-        
+        response = send_at_command(command,wait=3)
         if "+CPING:" in response:
             # print("Raw Response:", response)
             # Clean the response to remove any extra characters like \r\n, OK, etc.
@@ -110,7 +111,7 @@ def main():
                 resolved_ip_addr = parts[1]  # Resolved IP address
                 bytes_received = int(parts[2])  # Bytes received
                 trip_time = int(parts[3])  # Round-trip time
-                ttl = int(parts[4]) if len(parts) > 4 else 0  # TTL value
+                ttl = int(parts[4]) if len(parts) > 4 and parts[4].isdigit() else 0  # TTL value
                 print(f"Reply from {resolved_ip_addr}: bytes={bytes_received} time={trip_time}ms TTL={ttl}")
             else:
                 print("Error: Invalid response format.")

@@ -2,7 +2,7 @@
  * @file      TCPClientMultiple.py
  * @license   MIT
  * @copyright Copyright (c) 2025  ShenZhen XinYuan Electronic Technology Co., Ltd
- * @date      2025-06-20
+ * @date      2025-07-08
  * @note      The example demonstrates multiple socket connections. The problem comes from https://github.com/Xinyuan-LilyGO/LilyGO-T-A76XX/issues/223#issuecomment-2639376887
 '''
 import time
@@ -74,11 +74,11 @@ def check_modem():
             print()  # Print a newline for clarity
             break
         else:
-            print(".", end="", flush=True)
+            print(".", end="")
 
 def check_sim():
     while True:
-        sim_status = send_at_command("AT+CPIN?")
+        sim_status = send_at_command("AT+CPIN?",wait=2)
         if "READY" in sim_status:
             print("SIM card online")
             break
@@ -91,12 +91,13 @@ def connect_network(apn):
     print(f"Inquiring UE system information:{response}")
     send_at_command(f"AT+CGDCONT=1,\"IP\",\"{apn}\"")
     send_at_command("AT+CGATT=1")  # Attach to the GPRS
-    response = send_at_command("AT+NETOPEN")
-    if "OK" in response or "+NETOPEN: 0" in response:
-        print("Online registration successful")
-    else:
-        print("Network registration was rejected, please check if the APN is correct")
-        return
+    while True:
+        response = send_at_command("AT+NETOPEN",wait=3)
+        if "OK" in response or "+NETOPEN: 0" in response:
+            print("Online registration successful")
+            break
+        else:
+            print("Network registration was rejected, please check if the APN is correct")
 
     # Get the IP address
     ip_response = send_at_command("AT+IPADDR")

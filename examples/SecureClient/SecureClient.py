@@ -2,7 +2,7 @@
  * @file      SecureClient.py
  * @license   MIT
  * @copyright Copyright (c) 2025  ShenZhen XinYuan Electronic Technology Co., Ltd
- * @date      2025-06-20
+ * @date      2025-07-08
  * @note      Secure Client support A7670X/A7608X/SIM7670G
  *
  *
@@ -47,10 +47,11 @@ time.sleep(1)
 
 # Modem power on and reset sequence
 def modem_power_on():
-    machine.Pin(utilities.BOARD_POWERON_PIN, machine.Pin.OUT).value(0)
+    machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
     time.sleep(0.1)
-    machine.Pin(utilities.BOARD_POWERON_PIN, machine.Pin.OUT).value(1)
-    time.sleep(1)
+    machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(1)
+    time.sleep(0.1)
+    machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
 
 def modem_reset():
     machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(0)
@@ -58,9 +59,9 @@ def modem_reset():
     machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(1)
     time.sleep(2)
 
-def send_at_command(command):
+def send_at_command(command,wait=1):
     uart.write(command + "\r")
-    time.sleep(1)
+    time.sleep(wait)
     response = uart.read()
     if response:
         return response.decode("utf-8", "ignore").strip()
@@ -74,11 +75,11 @@ def check_modem():
             print()  # Print a newline for clarity
             break
         else:
-            print(".", end="", flush=True)
+            print(".", end="")
 
 def check_sim():
     while True:
-        sim_status = send_at_command("AT+CPIN?")
+        sim_status = send_at_command("AT+CPIN?",wait=2)
         if "READY" in sim_status:
             print("SIM card online")
             break
@@ -89,12 +90,13 @@ def check_sim():
 def connect_network(apn):
     send_at_command(f"AT+CGDCONT=1,\"IP\",\"{apn}\"")
     send_at_command("AT+CGATT=1")  # Attach to the GPRS
-    response = send_at_command("AT+NETOPEN")
-    if "OK" in response or "+NETOPEN: 0" in response:
-        print("Online registration successful")
-    else:
-        print("Network registration was rejected, please check if the APN is correct")
-        return
+    while True:
+        response = send_at_command("AT+NETOPEN",wait=3)
+        if "OK" in response or "+NETOPEN: 0" in response:
+            print("Online registration successful")
+            break
+        else:
+            print("Network registration was rejected, please check if the APN is correct")
 
     # Get the IP address
     ip_response = send_at_command("AT+IPADDR")

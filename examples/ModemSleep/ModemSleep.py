@@ -1,7 +1,7 @@
 #   @file      ModemSleep.py
 #   @license   MIT
 #   @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
-#   @date      2025-06-11
+#   @date      2025-07-05
 #   @record    https://youtu.be/2cjNsYcU6TU
 #   @note      T-A7608 & T-A7608-S3 & T-A7670x VBUS of the modem is connected to VBUS.
 #              When using USB power supply, the modem cannot be set to sleep mode. Please see README for details.  
@@ -43,7 +43,6 @@ def setup():
     
     wake_reason = machine.reset_cause()
     if wake_reason != machine.DEEPSLEEP_RESET:
-        # Normal startup (not from deep sleep)
         reset_pin = Pin(utilities.MODEM_RESET_PIN, Pin.OUT)
         print("Set Reset Pin.")
         reset_pin.value(not utilities.MODEM_RESET_LEVEL)
@@ -51,25 +50,21 @@ def setup():
         reset_pin.value(utilities.MODEM_RESET_LEVEL)
         time.sleep(2.6)
         reset_pin.value(not utilities.MODEM_RESET_LEVEL)
-        
-        # Power on the modem
+
         print("Power on modem PWRKEY")
         pwrkey_pin = Pin(utilities.BOARD_PWRKEY_PIN, Pin.OUT)
         pwrkey_pin.value(0)
         time.sleep(0.1)
         pwrkey_pin.value(1)
-        time.sleep(0.1)  # Ton >= 100 <= 500
+        time.sleep(0.1)
         pwrkey_pin.value(0)
     else:
         print("Wakeup modem!")
         
-        # Pull down DTR to wake up MODEM
         dtr_pin = Pin(utilities.MODEM_DTR_PIN, Pin.OUT)
         dtr_pin.value(0)
         time.sleep(2)
         modem_sleep_enable(False)
-        
-        # Delay sometime...
         time.sleep(10)
     
     print("Check modem online.")
@@ -82,36 +77,37 @@ def setup():
     
     print("Enter modem sleep mode!")
     
-    # Pull up DTR to put the modem into sleep
     dtr_pin = Pin(utilities.MODEM_DTR_PIN, Pin.OUT)
     dtr_pin.value(1)
-    # Note: MicroPython doesn't have direct gpio_hold_en equivalent
-    
+    time.sleep(1)
+
     if not modem_sleep_enable(True):
         print("modem sleep failed!")
     else:
         print("Modem enter sleep mode!")
-    
+
     time.sleep(5)
-    
+
     print("Check modem response.")
-    while modem_test_at():
-        print(".", end='')
-        time.sleep(0.5)
-    print("\nModem is not response, modem has sleep!")
-    
-    time.sleep(5)
+    start_time = time.time()
+    timeout = 10 
+    while (time.time() - start_time) < timeout:
+        if uart.any():
+            response = uart.read().decode().strip()
+            if "OK" in response: 
+                print(".", end='')
+        else:
+            print("\nModem is not response ,modem has sleep !")
+            break
+
+        time.sleep(1) 
+    else:
+        print("\nTimeout waiting for modem response.")
     
     # Prepare for deep sleep
-    # Note: MicroPython doesn't have direct gpio_hold_en equivalent
-    # for utilities.BOARD_POWERON_PIN and utilities.MODEM_RESET_PIN
-    
     print("Enter esp32 goto deepsleep!")
     time.sleep(0.2)
-    
-    # Configure deep sleep
     machine.deepsleep(TIME_TO_SLEEP * uS_TO_S_FACTOR)
-    # The following line will never be reached
     print("This will never be printed")
 
 if __name__ == '__main__':

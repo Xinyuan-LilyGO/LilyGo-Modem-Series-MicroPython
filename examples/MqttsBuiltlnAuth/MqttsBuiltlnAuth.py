@@ -2,7 +2,7 @@
 #   @file      MqttsBuiltlnAuth.py
 #   @license   MIT
 #   @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
-#   @date      2025-06-16
+#   @date      2025-07-09
 #   @note
 #   Example is suitable for A7670X/A7608X/SIM7672 series
 #   Connect MQTT Broker as https://test.mosquitto.org/
@@ -30,9 +30,9 @@ mqtt_subscribe_topic = "GsmMqttTest/subscribe"  # Subscribe topic
 uart = machine.UART(1, baudrate=utilities.MODEM_BAUDRATE, tx=utilities.MODEM_TX_PIN, rx=utilities.MODEM_RX_PIN)
 time.sleep(1)
 
-def send_at_command(command):
-    uart.write(command + "\r")
-    time.sleep(1)
+def send_at_command(command,wait=1):
+    uart.write(command + "\r\n")
+    time.sleep(wait)
     response = uart.read()
     if response:
         return response.decode("utf-8", "ignore").strip()
@@ -59,11 +59,11 @@ def check_modem():
             print()  # Print a newline for clarity
             break
         else:
-            print(".", end="", flush=True)
+            print(".", end="")
 
 def check_sim():
     while True:
-        sim_status = send_at_command("AT+CPIN?")
+        sim_status = send_at_command("AT+CPIN?",wait=2)
         if "READY" in sim_status:
             print("SIM card online")
             break
@@ -76,12 +76,13 @@ def check_sim():
 def connect_network(apn):
     send_at_command(f"AT+CGDCONT=1,\"IP\",\"{apn}\"")
     send_at_command("AT+CGATT=1")  # Attach to the GPRS
-    response = send_at_command("AT+NETOPEN")
-    if "OK" in response or "+NETOPEN: 0" in response:
-        print("Online registration successful")
-    else:
-        print("Network registration was rejected, please check if the APN is correct")
-        return
+    while True:
+        response = send_at_command("AT+NETOPEN",wait=3)
+        if "OK" in response or "+NETOPEN: 0" in response:
+            print("Online registration successful")
+            break
+        else:
+            print("Network registration was rejected, please check if the APN is correct")
     # Get the IP address
     ip_response = send_at_command("AT+IPADDR")
     if ip_response:
@@ -98,20 +99,22 @@ def mqtt_connect(client_index, server, port, client_id, username=None, password=
     response_ver = send_at_command(f"AT+CMQTTCFG=\"version\",{client_index},4")
     print(response_ver)
     # Build the connection command
-    if username and password:
-        connection_command = f"AT+CMQTTCONNECT=0,\"tcp://{server}:{port}\",{keepalive_time},1,\"{username}\",\"{password}\""
-        send_at_command(connection_command)
-    else:
-        connection_command = f"AT+CMQTTCONNECT=0,\"tcp://{server}:{port}\",{keepalive_time},1"
-        send_at_command(connection_command)
-    response_broker = send_at_command(connection_command)
-#     print(response_broker)
-    # Check if the connection was successful
-    if "+CMQTTCONNECT: 0,0" in response_broker:
-        return True
-    else:
-        return False
-    
+    while True:
+        if username and password:
+            connection_command = f"AT+CMQTTCONNECT=0,\"tcp://{server}:{port}\",{keepalive_time},1,\"{username}\",\"{password}\""
+            send_at_command(connection_command)
+        else:
+            connection_command = f"AT+CMQTTCONNECT=0,\"tcp://{server}:{port}\",{keepalive_time},1"
+            send_at_command(connection_command)
+        response_broker = send_at_command(connection_command,wait=3)
+    #     print(response_broker)
+        # Check if the connection was successful
+        if "+CMQTTCONNECT: 0,0" in response_broker:
+            break
+        else:
+            print("wait mqttconnect.")
+    return True
+
 def mqtt_connected():
     response_con = send_at_command("AT+CMQTTDISC?")
     if "OK" in response_con:
@@ -210,11 +213,8 @@ def main():
                 current_millis = time.ticks_ms()
                 if current_millis > check_connect_millis:
                     check_connect_millis = current_millis + 10000
-                    if not mqtt_connected():
-                        mqtt_connecting()
-                    else:
-                        payload = "RunTime:" + str(current_millis // 1000)
-                        mqtt_publish(client_index, mqtt_publish_topic, payload)
+                    payload = "RunTime:" + str(current_millis // 1000)
+                    mqtt_publish(client_index, mqtt_publish_topic, payload)
                 time.sleep(0.005)
         except KeyboardInterrupt:
             print("Exiting MQTT loop...")

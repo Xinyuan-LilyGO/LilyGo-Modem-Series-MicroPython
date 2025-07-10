@@ -2,8 +2,7 @@
 #   @file      MqttsBuiltlnAWS.py
 #   @license   MIT
 #   @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
-#   @date      2025-06-18
-#   @note
+#   @date      2025-07-09
 #   Example is suitable for A7670X/A7608X/SIM7672 series
 #   Connect MQTT Broker as https://aws.amazon.com/campaigns/IoT
 #   !!!! When using ESP to connect to AWS, the AWS IOT HUB policy must be set to all devices, otherwise the connection cannot be made.
@@ -37,7 +36,7 @@ __ssl = 0  # SSL flag
 
 # Function to send AT commands to the modem
 def send_at_command(command, wait=1):
-    uart.write(command + "\r")  # Send the AT command
+    uart.write(command + "\r\n")  # Send the AT command
     time.sleep(wait)  # Wait for a response
     response = uart.read()  # Read the response
     if response:
@@ -68,12 +67,12 @@ def check_modem():
             print()  # Print a newline for clarity
             break
         else:
-            print(".", end="", flush=True)  # Print dots until modem responds
+            print(".", end="")  # Print dots until modem responds
 
 # Function to verify SIM status
 def check_sim():
     while True:
-        sim_status = send_at_command("AT+CPIN?")  # Check the SIM PIN status
+        sim_status = send_at_command("AT+CPIN?", wait=2)  # Check the SIM PIN status
         if "READY" in sim_status:  # SIM is ready to use
             print("SIM card online")
             break
@@ -87,12 +86,13 @@ def check_sim():
 def connect_network(apn):
     send_at_command(f"AT+CGDCONT=1,\"IP\",\"{apn}\"")  # Set the PDP context
     send_at_command("AT+CGATT=1")  # Attach to the GPRS network
-    response = send_at_command("AT+NETOPEN")  # Open the network connection
-    if "OK" in response or "+NETOPEN: 0" in response:  # Check for successful connection
-        print("Online registration successful")
-    else:
-        print("Network registration was rejected, please check if the APN is correct")
-        return
+    while True:
+        response = send_at_command("AT+NETOPEN", wait=3)  # Open the network connection
+        if "OK" in response or "+NETOPEN: 0" in response:  # Check for successful connection
+            print("Online registration successful")
+            break
+        else:
+            print("Network registration was rejected, please check if the APN is correct")
     # Get the IP address assigned to the device
     ip_response = send_at_command("AT+IPADDR")
     if ip_response:
@@ -110,13 +110,15 @@ def mqtt_connect(client_index, server, port, client_id, keepalive_time=60):
     response_ver = send_at_command(f"AT+CMQTTCFG=\"version\",{client_index},4")
     print(response_ver)
     # Build the connection command
-    response_broker = send_at_command(f"AT+CMQTTCONNECT={client_index},\"tcp://{server}:{port}\",{keepalive_time},1", wait=5)
-    print(response_broker)
-    # Check if the connection was successful
-    if "+CMQTTCONNECT: 0,0" in response_broker:
-        return True
-    else:
-        return False
+    while True:
+        response_broker = send_at_command(f"AT+CMQTTCONNECT={client_index},\"tcp://{server}:{port}\",{keepalive_time},1", wait=5)
+        print(response_broker)
+        # Check if the connection was successful
+        if "+CMQTTCONNECT: 0,0" in response_broker:
+            break
+        else:
+            print("wait mqttconnect.")
+    return True
 
 # Function to check if already connected to MQTT
 def mqtt_connected():
@@ -301,11 +303,8 @@ def main():
                 current_millis = time.ticks_ms()  # Get current time in milliseconds
                 if current_millis > check_connect_millis:
                     check_connect_millis = current_millis + 10000  # Check every 10 seconds
-                    if not mqtt_connected():  # If not connected, attempt to reconnect
-                        mqtt_connecting(client_index, mqtt_broker, mqtt_port, mqtt_client_id, ssl)
-                    else:
-                        payload = "RunTime:" + str(current_millis // 1000)  # Prepare payload with runtime
-                        mqtt_publish(client_index, mqtt_publish_topic, payload)  # Publish the payload
+                    payload = "RunTime:" + str(current_millis // 1000)  # Prepare payload with runtime
+                    mqtt_publish(client_index, mqtt_publish_topic, payload)  # Publish the payload
                 time.sleep(0.005)  # Small delay to avoid busy loop
         except KeyboardInterrupt:
             print("Exiting MQTT loop...")  # Handle exit gracefully

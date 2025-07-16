@@ -2,18 +2,13 @@
  * @file      SDCard.py
  * @license   MIT
  * @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
- * @date      2025-06-27
+ * @date      2025-07-16
 '''
 import os
 import machine
 import uos
 import time
-
-BOARD_POWERON_PIN = 12
-BOARD_SCK_PIN = 21
-BOARD_MISO_PIN = 47
-BOARD_MOSI_PIN = 14
-BOARD_SD_CS_PIN = 13
+import utilities
 
 def listDir(fs, dirname, levels):
     print("Listing directory: %s" % dirname)
@@ -129,17 +124,17 @@ def testFileIO(fs, path):
 
 def setup():
     print("\nStarting SD Card Test\n")
-    if 'BOARD_POWERON_PIN' in globals():
-        power_pin = machine.Pin(BOARD_POWERON_PIN, machine.Pin.OUT)
+    if 'utilities.BOARD_POWERON_PIN' in globals():
+        power_pin = machine.Pin(utilities.BOARD_POWERON_PIN, machine.Pin.OUT)
         power_pin.value(1)
     try:
         sd = machine.SDCard(
             slot=2,
             width=1,
-            sck=machine.Pin(BOARD_SCK_PIN),
-            miso=machine.Pin(BOARD_MISO_PIN),
-            mosi=machine.Pin(BOARD_MOSI_PIN),
-            cs=machine.Pin(BOARD_SD_CS_PIN),
+            sck=machine.Pin(utilities.BOARD_SCK_PIN),
+            miso=machine.Pin(utilities.BOARD_MISO_PIN),
+            mosi=machine.Pin(utilities.BOARD_MOSI_PIN),
+            cs=machine.Pin(utilities.BOARD_SD_CS_PIN),
             freq=20000000)
         vfs = uos.VfsFat(sd)
         uos.mount(vfs, '/')

@@ -72,7 +72,7 @@ def check_modem():
 # Function to verify SIM status
 def check_sim():
     while True:
-        sim_status = send_at_command("AT+CPIN?", wait=2)  # Check the SIM PIN status
+        sim_status = send_at_command("AT+CPIN?", wait=3)  # Check the SIM PIN status
         if "READY" in sim_status:  # SIM is ready to use
             print("SIM card online")
             break

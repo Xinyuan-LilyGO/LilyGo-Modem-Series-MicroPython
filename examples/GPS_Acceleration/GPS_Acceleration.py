@@ -174,7 +174,7 @@ def modem_setup():
 def get_gps_data():
     while True:
         print("Requesting current GPS/GNSS/GLONASS location")
-        response = send_at_command("AT+CGNSSINFO")
+        response = send_at_command("AT+CGNSSINFO",wait=3)
         print(response)
         if "+CGNSSINFO: ,,,,,,,," not in response:
             data = response.split("+CGNSSINFO: ")[1].split("\n")[0] 
@@ -183,7 +183,10 @@ def get_gps_data():
                 fixMode = values[0]  # Fix mode
                 lat2 = float(values[5])  # Latitude
                 lon2 = float(values[7])  # Longitude
-                speed2 = float(values[12])  # Speed
+                if values[12] is not "":
+                    speed2 = float(values[12])  # Speed
+                else:
+                    speed2 = 0.0
                 alt2 = float(values[11])  # Altitude
                 vsat2 = int(values[1])  # Visible satellites
                 usat2 = 0  # GPS_BuiltIn cannot get the number of used satellites
@@ -191,9 +194,9 @@ def get_gps_data():
                 
                 date_str = values[9]  # Date
                 time_str = values[10]  # Time
-                year2 = int(date_str[:2]) + 2001  # Year
+                year2 = int(date_str[:2]) + 2009  # Year
                 month2 = int(date_str[2:4])  # Month
-                day2 = int(date_str[4:6])-1  # Day
+                day2 = int(date_str[4:6])-9  # Day
                 hour2 = int(time_str[:2])  # Hour
                 min2 = int(time_str[2:4])  # Minute
                 sec2 = float(time_str[4:])  # Second
@@ -214,7 +217,7 @@ def get_gps_data():
                 print("Visible Satellites:", vsat2, "\tUsed Satellites:", usat2)
                 print("Accuracy:", accuracy2)
                 print("Year:", year2, "\tMonth:", month2, "\tDay:", day2)
-                print("Hour:", hour2, "\tMinute:", min2, "\tSecond:", sec2)
+                print("Hour:", hour2, "\tMinute:", min2, "\tSecond:", int(sec2))
                 break
         else:
             print("Couldn't get GPS/GNSS/GLONASS location, retrying in 15s.")

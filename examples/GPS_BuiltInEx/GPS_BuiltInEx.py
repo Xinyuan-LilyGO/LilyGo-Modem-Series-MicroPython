@@ -3,7 +3,7 @@
  * @license   MIT
  * @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co.,
  * Ltd
- * @date      2025-06-24
+ * @date      2025-07-16
  * @note      GPS only supports A7670X/A7608X (excluding A7670G and other
  * versions that do not support positioning).
 '''
@@ -89,7 +89,7 @@ def modem_setup():
     
     # Send SIMCOMATI command
     response = send_at_command("AT+SIMCOMATI")
-    print(response) 
+    print(response)
     print("Enabling GPS/GNSS/GLONASS")
     response = send_at_command("AT+CGDRT=4,1")
     print(response)
@@ -102,32 +102,32 @@ def modem_setup():
         if response:
             break
         print(".", end="")
-        
     print("\nGPS Enabled")
-
     # Set GPS Baud to 115200
     response = send_at_command("AT+CGNSSIPR=115200")
     print(response)
-
+    
 def loopGPS(gnss_mode):
     print("=========================") 
     print(f"Set GPS Mode : {gnss_mode}")
-    response = send_at_command(f"AT+CGNSSMODE={gnss_mode}")
+    response = send_at_command(f"AT+CGNSSMODE={gnss_mode}",wait=3)
     print(response)
     print("Requesting current GPS/GNSS/GLONASS location")
     while True:
-        response = send_at_command("AT+CGNSSINFO")
-#         print(response)
-        if "+CGNSSINFO: ,,,,,,,," not in response:
+        response = send_at_command("AT+CGNSSINFO",wait=3)
+        print(response)
+        if "+CGNSSINFO: ,,,,,,,," not in response and "ERROR" not in response:
             data = response.split("+CGNSSINFO: ")[1].split("\n")[0] 
             values = data.split(",")
             if len(values) >= 1:  
                 fixMode = values[0]  # Fix mode
                 latitude = float(values[5])  # Latitude
                 longitude = float(values[7])  # Longitude
-                speed = float(values[12])  # Speed
+                if values[12] is not "":
+                    speed = float(values[12])  # Speed
+                else:
+                    speed = 0.0
                 altitude = float(values[11])  # Altitude
-                
                 if values[1] == "":
                     gps_satellite_num = 0
                 else:
@@ -152,9 +152,9 @@ def loopGPS(gnss_mode):
                 
                 date_str = values[9]  # Date
                 time_str = values[10]  # Time
-                year2 = int(date_str[:2]) + 2001  # Year
+                year2 = int(date_str[:2]) + 2009  # Year
                 month2 = int(date_str[2:4])  # Month
-                day2 = int(date_str[4:6])-1  # Day
+                day2 = int(date_str[4:6])-9  # Day
                 hour2 = int(time_str[:2])  # Hour
                 min2 = int(time_str[2:4])  # Minute
                 sec2 = float(time_str[4:])  # Second
@@ -187,7 +187,7 @@ def loopGPS(gnss_mode):
                 print("Day:", day2)
                 print("Hour:", hour2)
                 print("Minute:", min2)
-                print("Second:", sec2)
+                print("Second:", int(sec2))
                 
                 print("Course:", course)
                 print("PDOP:", PDOP)
@@ -202,9 +202,7 @@ def loopGPS(gnss_mode):
 # #             print(".", end="")
 #             time.sleep(15)
     
-    print("Disabling GPS")
-    response = send_at_command("AT+CGNSSPWR=0")
-    print(response)
+    
 
 def main():
     global modemName
@@ -241,6 +239,9 @@ def main():
           15 -  GPS + GLONASS + GALILEO + BDS
         '''
         loopGPS(gnss_mode[i])
+    print("Disabling GPS")
+    response = send_at_command("AT+CGNSSPWR=0")
+    print(response)   
     # Just echo serial data
     while True:
         if SerialAT.any():

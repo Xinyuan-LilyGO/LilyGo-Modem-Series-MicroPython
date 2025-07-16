@@ -292,16 +292,19 @@ def parse_loop():
             chars_processed += len(data)  # Count characters processed
             sentences_with_fix += 20  # Increase the count of sentences with fixes                
             
-            satellites_value = int(values[17])
+            if values[17] is not "":
+                satellites_value = int(values[17])
+            else:
+                satellites_value = 0
             hdop = float(values[15])
             lat = float(values[5])  # Latitude
             lng = float(values[7])  # Longitude
             
             date_str = values[9]  # Date
             time_str = values[10]  # Time
-            year2 = int(date_str[:2]) + 2000  # Year
+            year2 = int(date_str[:2]) + 2009  # Year
             month2 = int(date_str[2:4])  # Month
-            day2 = int(date_str[4:6])  # Day
+            day2 = int(date_str[4:6])-9  # Day
             hour2 = int(time_str[:2])  # Hour
             min2 = int(time_str[2:4])  # Minute
             sec2 = float(time_str[4:])  # Second
@@ -321,9 +324,12 @@ def parse_loop():
             elif hour2 < 0:
                 hour2 += 24
             
-            meters = float(values[11])
-            deg = float(values[13])
-            kmph = float(values[12])
+            if values[11] is not "":
+                meters = float(values[11])
+            if values[12] is not "":
+                kmph = float(values[12])
+            if values[13] is not "":
+                deg = float(values[13])
             
             
         else:
@@ -354,7 +360,7 @@ def parse_loop():
         printFloat(lat, 1, 11, 6)
         printFloat(lng, 1, 12, 6)
         printInt(age, 1, 5)
-        printDateTime(month2, day2, year2, hour2, min2, sec2)
+        printDateTime(month2, day2, year2, hour2, min2, int(sec2))
         printFloat(meters, 1, 7, 2)
         printFloat(deg, 1, 7, 2)
         printFloat(kmph, 1, 6, 2)

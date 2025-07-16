@@ -35,7 +35,7 @@ def setup():
     # Set Power control pin output (important for battery power)
     poweron_pin = Pin(utilities.BOARD_POWERON_PIN, Pin.OUT)
     poweron_pin.value(1)
-    print("Set utilities.BOARD_POWERON_PIN high to prevent reset")
+    print("Set BOARD_POWERON_PIN high to prevent reset")
     
     # Set modem reset pin, reset modem
     reset_pin = Pin(utilities.MODEM_RESET_PIN, Pin.OUT)
@@ -76,7 +76,6 @@ def setup():
 
 if __name__ == '__main__':
     setup()
-    
     # Empty loop similar to Arduino version
     while True:
         time.sleep(0.01)

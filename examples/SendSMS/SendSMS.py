@@ -2,7 +2,7 @@
  * @file      SendSMS.py
  * @license   MIT
  * @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
- * @date      2025-07-11
+ * @date      2025-07-18
  * @note      SIM7670G - SIM7670G-MNGV 2374B04 version supports SMS function,
  *            but it requires the operator base station to support SMS Over SGS service to send, otherwise it will be invalid
  *            `A7670E-LNXY-UBL` this version does not support voice and SMS functions.
@@ -17,15 +17,26 @@ uart = machine.UART(1, baudrate=utilities.MODEM_BAUDRATE, tx=utilities.MODEM_TX_
 # they will be rejected when registering for the network. You need to ask the local operator for the specific APN.
 # APNs from other operators are welcome to submit PRs for filling.
 APN = ""  # Replace with your APN (CHN-CT: China Telecom)
-SMS_TARGET = "+380xxxxxxxxx"  #Change the SMS_TARGET you want to dial
+SMS_TARGET = "+380xxxxxxxxxxx"  #Change the SMS_TARGET you want to dial
 
-def send_at_command(command,wait=1):
-    uart.write(command + "\r\n")
-    time.sleep(wait)
-    response = uart.read()
+def send_at_command(command, wait=1):
+    uart.write(command + "\r")  # Send the AT command
+    time.sleep(wait)  # Wait for a response
+    response = uart.read()  # Read the response
     if response:
-        return response.decode("utf-8", "ignore").strip()
+        return response.decode("utf-8", "ignore").strip()  # Decode and return the response
     return ""
+
+def connect_network(apn):
+    send_at_command(f"AT+CGDCONT=1,\"IP\",\"{apn}\"")  # Set the PDP context
+    send_at_command("AT+CGATT=1")  # Attach to the GPRS network
+    while True:
+        response = send_at_command("AT+NETOPEN",wait=3)  # Open the network connection
+        if "OK" in response or "+NETOPEN: 0" in response:  # Check for successful connection
+            print("Online registration successful")
+            break
+        else:
+            print("Network registration was rejected, please check if the APN is correct")
 
 def modem_power_on():
     machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
@@ -35,11 +46,11 @@ def modem_power_on():
     machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
 
 def modem_reset():
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(0)
+    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
     time.sleep(0.1)
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(1)
+    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(utilities.MODEM_RESET_LEVEL)
     time.sleep(2.6)
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(0)
+    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
 
 def check_modem():
     print("Starting modem...")
@@ -60,7 +71,7 @@ def sendSMS(SMS_TARGET):
     print(response)
     response = send_at_command(f"AT+CMGS=\"{SMS_TARGET}\"")
     print(response)
-    uart.write(("hello a7670e!" + "\r\n").encode('utf-8'))
+    uart.write(("hello a76xx!" + "\r\n").encode('utf-8'))
     time.sleep(1)  
     uart.write(bytearray([0x1A]))
     time.sleep(1)
@@ -80,6 +91,7 @@ def main():
     machine.Pin(utilities.MODEM_RING_PIN, machine.Pin.IN, machine.Pin.PULL_UP)
     check_modem()
     time.sleep(1)
+    connect_network(APN)
     print(f"Init success, start to send message to {SMS_TARGET}");
     sendSMS(SMS_TARGET)
     while True:

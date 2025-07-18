@@ -2,7 +2,7 @@
 #   @file      DeepSleep.py
 #   @license   MIT
 #   @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
-#   @date      2025-06-11
+#   @date      2025-07-17
 #   @record    T-A7608-S3 : https://youtu.be/5G4COjtKsFU
 #   T-A7608-S3 DeepSleep ~ 368 uA
 #   T-A7608-ESP32  DeepSleep ~ 240 uA
@@ -25,8 +25,8 @@ def modem_test_at():
     uart.write('AT\r\n')
     time.sleep(0.1)
     if uart.any():
-        response = uart.read().decode().strip()
-        return "OK" in response
+        response = uart.read()
+        return True
     return False
 
 def modem_poweroff():

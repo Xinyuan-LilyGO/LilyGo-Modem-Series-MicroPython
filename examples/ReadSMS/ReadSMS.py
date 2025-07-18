@@ -2,7 +2,7 @@
  * @file      ReadSMS.py
  * @license   MIT
  * @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
- * @date      2025-07-11
+ * @date      2025-07-18
  * @note      SIM7670G does not support SMS and voice functions
  *            `A7670E-LNXY-UBL` this version does not support voice and SMS functions.
  * ! Only read data, not decode data. For detailed SMS operation, please refer to A76XX_Series_AT_Command_Manual
@@ -46,11 +46,11 @@ def modem_power_on():
     machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
 
 def modem_reset():
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(0)
+    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
     time.sleep(0.1)
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(1)
+    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(utilities.MODEM_RESET_LEVEL)
     time.sleep(2.6)
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(0)
+    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
 
 def check_modem():
     print("Starting modem...")

@@ -176,7 +176,7 @@ def get_gps_data():
         print("Requesting current GPS/GNSS/GLONASS location")
         response = send_at_command("AT+CGNSSINFO",wait=3)
         print(response)
-        if "+CGNSSINFO: ,,,,,,,," not in response:
+        if "+CGNSSINFO: ,,,,,,,," not in response and "ERROR" not in response:
             data = response.split("+CGNSSINFO: ")[1].split("\n")[0] 
             values = data.split(",")
             if len(values) >= 1:  

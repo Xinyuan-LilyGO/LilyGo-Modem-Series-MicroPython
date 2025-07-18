@@ -2,7 +2,7 @@
  * @file      TextToSpeech.py
  * @license   MIT
  * @copyright Copyright (c) 2025  ShenZhen XinYuan Electronic Technology Co., Ltd
- * @date      2025-07-10
+ * @date      2025-07-18
  * @note      Only support A7670X A7608X , Not support SIM7670G
 '''
 from machine import UART
@@ -15,11 +15,11 @@ import utilities
 uart = UART(1, baudrate=utilities.MODEM_BAUDRATE, tx=utilities.MODEM_TX_PIN, rx=utilities.MODEM_RX_PIN)
 
 def modem_reset():
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(0)
+    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
     time.sleep(0.1)
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(1)
+    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(utilities.MODEM_RESET_LEVEL)
     time.sleep(2.6)
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(0)
+    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
 
 def modem_power_on():
     machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)

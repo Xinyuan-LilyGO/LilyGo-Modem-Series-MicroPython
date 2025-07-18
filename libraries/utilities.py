@@ -54,6 +54,26 @@ def configure_platform():
             "MODEM_GPS_ENABLE_GPIO": 0,
             "MODEM_GPS_ENABLE_LEVEL": 0,
         }
+    elif CURRENT_PLATFORM == "LILYGO_T_A7608X_S3":
+        CONFIG = {
+            "MODEM_BAUDRATE": 115200,
+            "MODEM_DTR_PIN": 7,
+            "MODEM_TX_PIN": 17,
+            "MODEM_RX_PIN": 18,
+            "BOARD_PWRKEY_PIN": 15,
+            "BOARD_BAT_ADC_PIN": 4,
+            "BOARD_POWERON_PIN": 12,
+            "MODEM_RING_PIN": 6,
+            "MODEM_RESET_PIN": 16,
+            "BOARD_MISO_PIN": 47,
+            "BOARD_MOSI_PIN": 14,
+            "BOARD_SCK_PIN": 21,
+            "BOARD_SD_CS_PIN": 13,
+            "MODEM_RESET_LEVEL": 0,
+            "BOARD_SOLAR_ADC_PIN": 3,
+            "MODEM_GPS_ENABLE_GPIO": 127,
+            "MODEM_GPS_ENABLE_LEVEL": 1,
+        }
     else:
         raise ValueError("Unsupported platform")
 
@@ -61,4 +81,5 @@ def configure_platform():
         globals()[key] = value
 
 # set_platform("LILYGO_T_SIM7670G")
-set_platform("LILYGO_T_A7670")
+# set_platform("LILYGO_T_A7670")
+set_platform("LILYGO_T_A7608X_S3")

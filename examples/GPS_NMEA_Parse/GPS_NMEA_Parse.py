@@ -285,7 +285,7 @@ def parse_loop():
 #         print(response)
         response = send_at_command("AT+CGNSSINFO")
 #         print("GPS/GNSS Based Location String:", response.split("\r\n")[1])
-        if "+CGNSSINFO: ,,,,,,,," not in response:
+        if "+CGNSSINFO: ,,,,,,,," not in response and "ERROR" not in response:
             data = response.split("+CGNSSINFO: ")[1].split("\n")[0]
             values = data.split(",")
             

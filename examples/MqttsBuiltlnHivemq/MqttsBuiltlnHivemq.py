@@ -38,12 +38,16 @@ __ssl = 0  # SSL flag
 __sni = 0
 
 # Function to send AT commands to the modem
-def send_at_command(command,wait=1):
-    uart.write(command + "\r")  # Send the AT command
-    time.sleep(wait)  # Wait for a response
-    response = uart.read()  # Read the response
+def send_at_command(command, wait=1):
+    uart.write(command + "\r\n")
+    time.sleep(wait)
+    response = uart.read()
     if response:
-        return response.decode("utf-8", "ignore").strip()  # Decode and return the response
+        if isinstance(response, bytes) and len(response) > 0:
+            try:
+                return response.decode("utf-8", "ignore").strip()
+            except: 
+                return ""
     return ""
 
 # Function to power on the modem
@@ -56,11 +60,12 @@ def modem_power_on():
 
 # Function to reset the modem
 def modem_reset():
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(0)  # Pull reset pin low
+    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
     time.sleep(0.1)
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(1)  # Pull reset pin high
-    time.sleep(2)  # Wait for modem to reset
-
+    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(utilities.MODEM_RESET_LEVEL)
+    time.sleep(2.6)
+    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
+    
 # Function to check if the modem is ready
 def check_modem():
     print("Starting modem...")

@@ -28,12 +28,16 @@ def modem_power_on():
     time.sleep(0.1)
     machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
     
-def send_at_command(command,wait=1):
+def send_at_command(command, wait=1):
     uart.write(command + "\r\n")
     time.sleep(wait)
     response = uart.read()
     if response:
-        return response.decode("utf-8", "ignore").strip()
+        if isinstance(response, bytes) and len(response) > 0:
+            try:
+                return response.decode("utf-8", "ignore").strip()
+            except: 
+                return ""
     return ""
 
 # Check if the modem is online

@@ -2,7 +2,7 @@
  * @file      GPS_BuiltIn.py
  * @license   MIT
  * @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
- * @date      2025-07-16
+ * @date      2025-07-22
  * @note      GPS only supports A7670X/A7608X (excluding A7670G and other versions that do not support positioning).
 '''
 import machine
@@ -19,12 +19,17 @@ poweron = Pin(utilities.BOARD_POWERON_PIN, Pin.OUT)
 reset_pin = Pin(utilities.MODEM_RESET_PIN, Pin.OUT)
 gps_enable = Pin(utilities.MODEM_GPS_ENABLE_GPIO, Pin.OUT)
 
-def send_at_command(command,wait=1):
-    SerialAT.write(command + "\r")
+def send_at_command(command, wait=1):
+    SerialAT.write(command + "\r\n")
     time.sleep(wait)
     response = SerialAT.read()
+#     print("Raw response:", response)  # Debug line
     if response:
-        return response.decode("utf-8", "ignore").strip()
+        if isinstance(response, bytes) and len(response) > 0:
+            try:
+                return response.decode("utf-8", "ignore").strip()
+            except:  # This should be fine
+                return ""
     return ""
 
 def modem_setup():
@@ -103,9 +108,9 @@ def modem_setup():
 #     +CGNSSINFO: 2,04,00,21.xxxxx,N,114.xxxxxxxx,E,020924,094145.00,-34.0,1.403,,6.9,6.8,1.0,03
     
     print("Enabling GPS/GNSS/GLONASS")
-    response = send_at_command("AT+CGDRT=4,1")
+    response = send_at_command("AT+CVAUXS=1")
     print(response)
-    response = send_at_command("AT+CGSETV=4,1")
+    response = send_at_command("AT+CGPSHOT")
     print(response)
     while True:
         gps_enable.value(utilities.MODEM_GPS_ENABLE_LEVEL)
@@ -144,9 +149,9 @@ def get_gps_data():
                 
                 date_str = values[9]  # Date
                 time_str = values[10]  # Time
-                year2 = int(date_str[:2]) + 2009  # Year
+                year2 = int(date_str[:2]) + 2003  # Year
                 month2 = int(date_str[2:4])  # Month
-                day2 = int(date_str[4:6])-9  # Day
+                day2 = int(date_str[4:6])-3  # Day
                 hour2 = int(time_str[:2])  # Hour
                 min2 = int(time_str[2:4])  # Minute
                 sec2 = float(time_str[4:])  # Second

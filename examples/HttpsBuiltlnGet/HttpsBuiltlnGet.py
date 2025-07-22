@@ -38,10 +38,11 @@ def modem_power_on():
     machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
 
 def modem_reset():
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(0)
+    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
     time.sleep(0.1)
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(1)
-    time.sleep(2)
+    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(utilities.MODEM_RESET_LEVEL)
+    time.sleep(2.6)
+    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
 
 def send_at_command(command,wait=1):
     uart.write(command + "\r\n")

@@ -2,7 +2,7 @@
  * @file      GPS_NMEA_Output.py
  * @license   MIT
  * @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
- * @date      2025-06-25
+ * @date      2025-07-22
  * @note      GPS only supports A7670X/A7608X (excluding A7670G and other versions that do not support positioning).
 '''
 import machine
@@ -19,12 +19,16 @@ poweron = Pin(utilities.BOARD_POWERON_PIN, Pin.OUT)
 reset_pin = Pin(utilities.MODEM_RESET_PIN, Pin.OUT)
 gps_enable = Pin(utilities.MODEM_GPS_ENABLE_GPIO, Pin.OUT)
 
-def send_at_command(command,wait=1):
-    SerialAT.write(command + "\r")
+def send_at_command(command, wait=1):
+    SerialAT.write(command + "\r\n")
     time.sleep(wait)
     response = SerialAT.read()
     if response:
-        return response.decode("utf-8", "ignore").strip()
+        if isinstance(response, bytes) and len(response) > 0:
+            try:
+                return response.decode("utf-8", "ignore").strip()
+            except: 
+                return ""
     return ""
 
 def modem_setup():
@@ -86,9 +90,9 @@ def modem_setup():
         time.sleep(5)
     
     print("Enabling GPS/GNSS/GLONASS")
-    response = send_at_command("AT+CGDRT=4,1")
+    response = send_at_command("AT+CVAUXS=1")
     print(response)
-    response = send_at_command("AT+CGSETV=4,1")
+    response = send_at_command("AT+CGPSHOT")
     print(response)
     while True:
         gps_enable.value(utilities.MODEM_GPS_ENABLE_LEVEL)
@@ -106,21 +110,21 @@ def modem_setup():
     
     response = send_at_command("AT+CGNSSMODE=3")
     print(response)
-    
+
     response = send_at_command("AT+CGNSSNMEA=1,1,1,1,1,1,0,0")
     print(response)
     
-    response = send_at_command("AT+CGPSNMEARATE=1")
+    response = send_at_command("AT+CGNSSPWR?",wait=2)
     print(response)
     
-    response = send_at_command("AT+CGNSSTST=1")
+    response = send_at_command("AT+CGNSSTST=1",wait=2)
     print(response)
     
-    response = send_at_command("AT+CGNSSPORTSWITCH=0,1")
+    response = send_at_command("AT+CGNSSPORTSWITCH=0,1",wait=2)
     print(response)
-    
+        
     print("Next you should see NMEA sentences in the serial monitor");
-
+    
 
 def output_loop():
     response = send_at_command("AT+CGNSSPWR?")

@@ -1,5 +1,5 @@
 '''
- * @file      SendLocationFromSMS.py
+ * @file      SendLocationFromSMS_Use_TinyGPS.py
  * @license   MIT
  * @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
  * @date      2025-07-14
@@ -17,12 +17,16 @@ uart = machine.UART(1, baudrate=utilities.MODEM_BAUDRATE, tx=utilities.MODEM_TX_
 APN = ""  # Replace with your APN (CHN-CT: China Telecom)
 SMS_TARGET = "+86xxxxxxxxxxx"  #Change the SMS_TARGET you want to dial
 
-def send_at_command(command,wait=1):
+def send_at_command(command, wait=1):
     uart.write(command + "\r\n")
     time.sleep(wait)
     response = uart.read()
     if response:
-        return response.decode("utf-8", "ignore").strip()
+        if isinstance(response, bytes) and len(response) > 0:
+            try:
+                return response.decode("utf-8", "ignore").strip()
+            except: 
+                return ""
     return ""
 
 def modem_power_on():
@@ -33,11 +37,11 @@ def modem_power_on():
     machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
 
 def modem_reset():
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(0)
+    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
     time.sleep(0.1)
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(1)
+    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(utilities.MODEM_RESET_LEVEL)
     time.sleep(2.6)
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(0)
+    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
 
 def check_modem():
     print("Starting modem...")
@@ -171,8 +175,7 @@ def main():
                 print("Send sms message fail")
             time.sleep(3)
             # Deep sleep, wake up every 60 seconds for positioning
-            deepsleep(60 * 1000) # 60 Second
-        lightsleep(5000)       
+            deepsleep(60 * 1000) # 60 Second     
             
 if __name__ == "__main__":
     main()

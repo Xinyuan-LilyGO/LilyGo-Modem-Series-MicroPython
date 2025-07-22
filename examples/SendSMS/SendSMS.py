@@ -20,11 +20,15 @@ APN = ""  # Replace with your APN (CHN-CT: China Telecom)
 SMS_TARGET = "+380xxxxxxxxxxx"  #Change the SMS_TARGET you want to dial
 
 def send_at_command(command, wait=1):
-    uart.write(command + "\r")  # Send the AT command
-    time.sleep(wait)  # Wait for a response
-    response = uart.read()  # Read the response
+    uart.write(command + "\r\n")
+    time.sleep(wait)
+    response = uart.read()
     if response:
-        return response.decode("utf-8", "ignore").strip()  # Decode and return the response
+        if isinstance(response, bytes) and len(response) > 0:
+            try:
+                return response.decode("utf-8", "ignore").strip()
+            except: 
+                return ""
     return ""
 
 def connect_network(apn):

@@ -18,12 +18,16 @@ uart = machine.UART(1, baudrate=utilities.MODEM_BAUDRATE, tx=utilities.MODEM_TX_
 # APNs from other operators are welcome to submit PRs for filling.
 APN = ""  # Replace with your APN (CHN-CT: China Telecom)
 
-def send_at_command(command,wait=1):
+def send_at_command(command, wait=1):
     uart.write(command + "\r\n")
     time.sleep(wait)
     response = uart.read()
     if response:
-        return response.decode("utf-8", "ignore").strip()
+        if isinstance(response, bytes) and len(response) > 0:
+            try:
+                return response.decode("utf-8", "ignore").strip()
+            except: 
+                return ""
     return ""
 
 def readSMS_send_at(command, timeout=10000):

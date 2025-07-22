@@ -30,12 +30,16 @@ mqtt_subscribe_topic = "GsmMqttTest/subscribe"  # Subscribe topic
 uart = machine.UART(1, baudrate=utilities.MODEM_BAUDRATE, tx=utilities.MODEM_TX_PIN, rx=utilities.MODEM_RX_PIN)
 time.sleep(1)
 
-def send_at_command(command,wait=1):
+def send_at_command(command, wait=1):
     uart.write(command + "\r\n")
     time.sleep(wait)
     response = uart.read()
     if response:
-        return response.decode("utf-8", "ignore").strip()
+        if isinstance(response, bytes) and len(response) > 0:
+            try:
+                return response.decode("utf-8", "ignore").strip()
+            except: 
+                return ""
     return ""
 
 def modem_power_on():
@@ -46,10 +50,11 @@ def modem_power_on():
     machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
 
 def modem_reset():
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(0)
+    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
     time.sleep(0.1)
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(1)
-    time.sleep(2)
+    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(utilities.MODEM_RESET_LEVEL)
+    time.sleep(2.6)
+    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
 
 def check_modem():
     print("Starting modem...")
@@ -194,6 +199,8 @@ def mqtt_publish(client_index, topic, message):
     
 def main():
     print("Starting sketch...")
+    poweron = machine.Pin(utilities.BOARD_POWERON_PIN, machine.Pin.OUT)
+    poweron.value(1)
     modem_power_on()
     modem_reset()
     check_modem()

@@ -37,12 +37,16 @@ def get_battery_voltage():
     average_voltage = sum(readings) / len(readings)
     return average_voltage * 2  # Return the average in mV
 
-def send_at_command(command,wait=1):
+def send_at_command(command, wait=1):
     uart.write(command + "\r\n")
     time.sleep(wait)
     response = uart.read()
     if response:
-        return response.decode("utf-8", "ignore").strip()
+        if isinstance(response, bytes) and len(response) > 0:
+            try:
+                return response.decode("utf-8", "ignore").strip()
+            except: 
+                return ""
     return ""
 
 def modem_power_on():

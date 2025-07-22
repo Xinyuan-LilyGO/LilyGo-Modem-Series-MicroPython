@@ -2,7 +2,7 @@
  * @file      SendLocationFromSMS.py
  * @license   MIT
  * @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
- * @date      2025-07-14
+ * @date      2025-07-22
  * @note      SIM7670G does not support SMS and voice functions
 '''
 import time
@@ -17,12 +17,16 @@ uart = machine.UART(1, baudrate=utilities.MODEM_BAUDRATE, tx=utilities.MODEM_TX_
 APN = ""  # Replace with your APN (CHN-CT: China Telecom)
 SMS_TARGET = "+380xxxxxxxxx"  #Change the SMS_TARGET you want to dial
 
-def send_at_command(command,wait=1):
+def send_at_command(command, wait=1):
     uart.write(command + "\r\n")
     time.sleep(wait)
     response = uart.read()
     if response:
-        return response.decode("utf-8", "ignore").strip()
+        if isinstance(response, bytes) and len(response) > 0:
+            try:
+                return response.decode("utf-8", "ignore").strip()
+            except: 
+                return ""
     return ""
 
 def modem_power_on():
@@ -33,11 +37,11 @@ def modem_power_on():
     machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
 
 def modem_reset():
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(0)
+    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
     time.sleep(0.1)
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(1)
+    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(utilities.MODEM_RESET_LEVEL)
     time.sleep(2.6)
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(0)
+    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
 
 def check_modem():
     print("Starting modem...")
@@ -77,9 +81,9 @@ def loopGPS():
             accuracy2 = float(values[16])  # Accuracy
             date_str = values[9]  # Date
             time_str = values[10]  # Time
-            year2 = int(date_str[:2]) + 2011  # Year
+            year2 = int(date_str[:2]) + 2003  # Year
             month2 = int(date_str[2:4])  # Month
-            day2 = int(date_str[4:6])-11  # Day
+            day2 = int(date_str[4:6])-3  # Day
             hour2 = int(time_str[:2])  # Hour
             min2 = int(time_str[2:4])  # Minute
             sec2 = float(time_str[4:])  # Second
@@ -153,8 +157,7 @@ def main():
                 print("Send sms message fail")
             time.sleep(3)
             # Deep sleep, wake up every 60 seconds for positioning
-            deepsleep(60 * 1000) # 60 Second
-        lightsleep(5000)       
+            deepsleep(60 * 1000) # 60 Second    
             
 if __name__ == "__main__":
     main()

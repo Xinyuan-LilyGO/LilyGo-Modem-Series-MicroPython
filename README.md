@@ -137,7 +137,7 @@
 
    1. COMX is the port number. Change it to the port number corresponding to your computer.
    2. D:\T-Connect-Pro\firmware\xxxxx-firmware.bin is the firmware path. Change it to the corresponding storage path.
-   3. **If you need to make your own MicroPython firmware, please refer to [Tutorial](./make firmware/README.md) for the operation.**
+   3. **If you need to make your own MicroPython firmware, please refer to [Tutorial](./make_firmware/README.md) for the operation.**
 
 9. Click on "<kbd>[Device Connected/Disconnected](image/1.png)</kbd>" at the lower left corner, and then click on the pop-up window "<kbd>[COMX](image/2.png)</kbd>" at the top to connect the serial port. A pop-up pops up at the lower right corner saying "<kbd>[Connection successful](image/3.png)</kbd>" and the connection is complete.
 

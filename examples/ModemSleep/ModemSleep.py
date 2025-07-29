@@ -1,7 +1,7 @@
 #   @file      ModemSleep.py
 #   @license   MIT
 #   @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
-#   @date      2025-07-05
+#   @date      2025-07-28
 #   @record    https://youtu.be/2cjNsYcU6TU
 #   @note      T-A7608 & T-A7608-S3 & T-A7670x VBUS of the modem is connected to VBUS.
 #              When using USB power supply, the modem cannot be set to sleep mode. Please see README for details.  
@@ -37,50 +37,68 @@ def modem_sleep_enable(enable):
 def setup():
     print("Initializing...")
     
-    # Turn on DC boost to power on the modem
-    poweron_pin = Pin(utilities.BOARD_POWERON_PIN, Pin.OUT)
-    poweron_pin.value(1)
+    try:
+        # Turn on DC boost to power on the modem
+        poweron_pin = Pin(utilities.BOARD_POWERON_PIN, Pin.OUT)
+        poweron_pin.value(1)
+    except:
+        pass
+    
     
     wake_reason = machine.reset_cause()
     if wake_reason != machine.DEEPSLEEP_RESET:
-        reset_pin = Pin(utilities.MODEM_RESET_PIN, Pin.OUT)
-        print("Set Reset Pin.")
-        reset_pin.value(not utilities.MODEM_RESET_LEVEL)
-        time.sleep(0.1)
-        reset_pin.value(utilities.MODEM_RESET_LEVEL)
-        time.sleep(2.6)
-        reset_pin.value(not utilities.MODEM_RESET_LEVEL)
-
-        print("Power on modem PWRKEY")
-        pwrkey_pin = Pin(utilities.BOARD_PWRKEY_PIN, Pin.OUT)
-        pwrkey_pin.value(0)
-        time.sleep(0.1)
-        pwrkey_pin.value(1)
-        time.sleep(0.1)
-        pwrkey_pin.value(0)
+        try:
+            reset_pin = Pin(utilities.MODEM_RESET_PIN, Pin.OUT)
+            print("Set Reset Pin.")
+            reset_pin.value(not utilities.MODEM_RESET_LEVEL)
+            time.sleep(0.1)
+            reset_pin.value(utilities.MODEM_RESET_LEVEL)
+            time.sleep(2.6)
+            reset_pin.value(not utilities.MODEM_RESET_LEVEL)
+        except:
+            pass
+        
+        try:
+            machine.Pin(utilities.MODEM_DTR_PIN, machine.Pin.OUT).value(0)
+        except:
+            pass
+    
+        try:
+            print("Power on modem PWRKEY")
+            pwrkey_pin = Pin(utilities.BOARD_PWRKEY_PIN, Pin.OUT)
+            pwrkey_pin.value(0)
+            time.sleep(0.1)
+            pwrkey_pin.value(1)
+            time.sleep(0.1)
+            pwrkey_pin.value(0)
+        except:
+            pass
     else:
         print("Wakeup modem!")
-        
-        dtr_pin = Pin(utilities.MODEM_DTR_PIN, Pin.OUT)
-        dtr_pin.value(0)
-        time.sleep(2)
-        modem_sleep_enable(False)
-        time.sleep(10)
+        try:
+            dtr_pin = Pin(utilities.MODEM_DTR_PIN, Pin.OUT)
+            dtr_pin.value(0)
+            time.sleep(2)
+            modem_sleep_enable(False)
+            time.sleep(10)
+        except:
+            pass
     
     print("Check modem online.")
     while not modem_test_at():
         print(".", end='')
         time.sleep(0.5)
     print("\nModem is online!")
-    
     time.sleep(5)
-    
     print("Enter modem sleep mode!")
     
-    dtr_pin = Pin(utilities.MODEM_DTR_PIN, Pin.OUT)
-    dtr_pin.value(1)
-    time.sleep(1)
-
+    try:
+        dtr_pin = Pin(utilities.MODEM_DTR_PIN, Pin.OUT)
+        dtr_pin.value(1)
+        time.sleep(1)
+    except:
+        pass
+    
     if not modem_sleep_enable(True):
         print("modem sleep failed!")
     else:

@@ -2,7 +2,7 @@
  * @file      SecureClient.py
  * @license   MIT
  * @copyright Copyright (c) 2025  ShenZhen XinYuan Electronic Technology Co., Ltd
- * @date      2025-07-08
+ * @date      2025-07-29
  * @note      Secure Client support A7670X/A7608X/SIM7670G
  *
  *
@@ -20,6 +20,7 @@ import time
 import machine
 import utilities
 import urequests
+import re
 
 # It depends on the operator whether to set up an APN. If some operators do not set up an APN,
 # they will be rejected when registering for the network. You need to ask the local operator for the specific APN.
@@ -47,19 +48,30 @@ time.sleep(1)
 
 # Modem power on and reset sequence
 def modem_power_on():
-    machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
-    time.sleep(0.1)
-    machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(1)
-    time.sleep(0.1)
-    machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
-
+    try:
+        machine.Pin(utilities.MODEM_DTR_PIN, machine.Pin.OUT).value(0)
+    except:
+        pass
+    
+    try:
+        machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
+        time.sleep(0.1)
+        machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(1)
+        time.sleep(0.1)
+        machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
+    except:
+        pass
+    
 def modem_reset():
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
-    time.sleep(0.1)
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(utilities.MODEM_RESET_LEVEL)
-    time.sleep(2.6)
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
-
+    try:
+        machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
+        time.sleep(0.1)
+        machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(utilities.MODEM_RESET_LEVEL)
+        time.sleep(2.6)
+        machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
+    except:
+        pass
+    
 def send_at_command(command, wait=1):
     uart.write(command + "\r\n")
     time.sleep(wait)
@@ -93,22 +105,45 @@ def check_sim():
             time.sleep(3)
 
 def connect_network(apn):
-    send_at_command(f"AT+CGDCONT=1,\"IP\",\"{apn}\"")
-    send_at_command("AT+CGATT=1")  # Attach to the GPRS
-    while True:
-        response = send_at_command("AT+NETOPEN",wait=3)
-        if "OK" in response or "+NETOPEN: 0" in response:
+    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G":
+        response = send_at_command("AT+CNMP=2")
+        print(response)
+        response = send_at_command("AT+CNMP=?")
+        print(response)
+        print("Wait for the modem to register with the network.")
+        response = send_at_command("AT+CEREG?")
+        print(response)
+        if "OK" in response:
             print("Online registration successful")
-            break
-        else:
-            print("Network registration was rejected, please check if the APN is correct")
-
-    # Get the IP address
-    ip_response = send_at_command("AT+IPADDR")
-    if ip_response:
-        print("Network IP:", ip_response)
+        response = send_at_command("AT+CPSI?")
+        print(response)
+        response = send_at_command("AT+CNACT?")
+        print(response)
+        response = send_at_command("AT+CNACT=1",wait=3)
+        print(response)
+        response = send_at_command("AT+CNACT?")
+        print(response)
+        match = re.search(r'"(\d+\.\d+\.\d+\.\d+)"', response)
+        if match:
+            ip_address = match.group(1)
+            print("Network IP:", ip_address)
     else:
-        print("Failed to retrieve IP address.")
+        send_at_command(f"AT+CGDCONT=1,\"IP\",\"{apn}\"")
+        send_at_command("AT+CGATT=1")  # Attach to the GPRS
+        while True:
+            response = send_at_command("AT+NETOPEN",wait=3)
+            if "OK" in response or "+NETOPEN: 0" in response:
+                print("Online registration successful")
+                break
+            else:
+                print("Network registration was rejected, please check if the APN is correct")
+
+        # Get the IP address
+        ip_response = send_at_command("AT+IPADDR")
+        if ip_response:
+            print("Network IP:", ip_response)
+        else:
+            print("Failed to retrieve IP address.")
 
 def perform_https_requests():
     # Initialize HTTPS connection
@@ -119,10 +154,8 @@ def perform_https_requests():
     if "OK" not in response:
         print("Failed to initialize HTTP service")
         return
-
     # Ensure SNI is enabled
-    send_at_command('+CSSLCFG="enableSNI",0,1')  # Enable SNI (ensure SSL works properly)
-
+#     send_at_command('AT+CSSLCFG="enableSNI",0,1')  # Enable SNI (ensure SSL works properly)
     for url in request_urls:
         retry = 3
         while retry > 0:

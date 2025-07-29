@@ -2,7 +2,7 @@
 #   @file      DeepSleep.py
 #   @license   MIT
 #   @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
-#   @date      2025-07-17
+#   @date      2025-07-28
 #   @record    T-A7608-S3 : https://youtu.be/5G4COjtKsFU
 #   T-A7608-S3 DeepSleep ~ 368 uA
 #   T-A7608-ESP32  DeepSleep ~ 240 uA
@@ -51,34 +51,47 @@ def setup():
             i -= 1
         print("TurnON Modem!")
     
-    # Turn on DC boost to power on the modem
-    poweron_pin = Pin(utilities.BOARD_POWERON_PIN, Pin.OUT)
-    poweron_pin.value(1)
+    try:
+        # Turn on DC boost to power on the modem
+        poweron_pin = Pin(utilities.BOARD_POWERON_PIN, Pin.OUT)
+        poweron_pin.value(1)
+        time.sleep(2)
+    except:
+        pass
     
-    time.sleep(2)
+    try:
+        # Handle modem reset
+        reset_pin = Pin(utilities.MODEM_RESET_PIN, Pin.OUT)
+        print("Set Reset Pin.")
+        reset_pin.value(not utilities.MODEM_RESET_LEVEL)
+        time.sleep(0.1)
+        reset_pin.value(utilities.MODEM_RESET_LEVEL)
+        time.sleep(2.6)
+        reset_pin.value(not utilities.MODEM_RESET_LEVEL)
+    except:
+        pass
     
-    # Handle modem reset
-    reset_pin = Pin(utilities.MODEM_RESET_PIN, Pin.OUT)
-    print("Set Reset Pin.")
-    reset_pin.value(not utilities.MODEM_RESET_LEVEL)
-    time.sleep(0.1)
-    reset_pin.value(utilities.MODEM_RESET_LEVEL)
-    time.sleep(2.6)
-    reset_pin.value(not utilities.MODEM_RESET_LEVEL)
+    try:
+        machine.Pin(utilities.MODEM_DTR_PIN, machine.Pin.OUT).value(0)
+    except:
+        pass
     
-    dtr_pin = Pin(utilities.MODEM_DTR_PIN, Pin.OUT)
-    dtr_pin.value(0)
+    try:
+        print("Power on the modem PWRKEY.")
+        pwrkey_pin = Pin(utilities.BOARD_PWRKEY_PIN, Pin.OUT)
+        pwrkey_pin.value(0)
+        time.sleep(0.1)
+        pwrkey_pin.value(1)
+        time.sleep(0.3)
+        pwrkey_pin.value(0)
+    except:
+        pass
     
-    print("Power on the modem PWRKEY.")
-    pwrkey_pin = Pin(utilities.BOARD_PWRKEY_PIN, Pin.OUT)
-    pwrkey_pin.value(0)
-    time.sleep(0.1)
-    pwrkey_pin.value(1)
-    time.sleep(0.3)
-    pwrkey_pin.value(0)
-    
-    # Pull up DTR to put the modem into sleep
-    dtr_pin.value(1)
+    try:
+        # Pull up DTR to put the modem into sleep
+        dtr_pin.value(1)
+    except:
+        pass
     
     # Delay sometime...
     time.sleep(10)
@@ -100,20 +113,33 @@ def setup():
     time.sleep(5)
     
     print("Check modem response.")
-    while modem_test_at():
-        print(".", end='')
-        time.sleep(0.5)
+    start_time = time.time()
+    timeout = 10 
+    while (time.time() - start_time) < timeout:
+        if uart.any():
+            response = uart.read().decode().strip()
+            if "OK" in response: 
+                print(".", end='')
+        else:
+            break
+        time.sleep(1) 
     print("\nModem is not response, modem has power off!")
     
     time.sleep(5)
     
-    # Turn off DC boost to power off the modem
-    poweron_pin.value(0)
+    try:
+        # Turn off DC boost to power off the modem
+        poweron_pin.value(0)
+    except:
+        pass
     
-    # Prepare for deep sleep
-    reset_pin.value(not utilities.MODEM_RESET_LEVEL)
-    # Note: MicroPython doesn't have direct gpio_hold_en equivalent
-    # You might need to handle this differently based on your ESP32 port
+    try:
+        # Prepare for deep sleep
+        reset_pin.value(not utilities.MODEM_RESET_LEVEL)
+        # Note: MicroPython doesn't have direct gpio_hold_en equivalent
+        # You might need to handle this differently based on your ESP32 port
+    except:
+        pass
     
     print("Enter esp32 goto deepsleep!")
     time.sleep(0.2)

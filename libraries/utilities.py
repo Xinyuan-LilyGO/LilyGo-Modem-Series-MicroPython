@@ -71,8 +71,44 @@ def configure_platform():
             "BOARD_SD_CS_PIN": 13,
             "MODEM_RESET_LEVEL": 0,
             "BOARD_SOLAR_ADC_PIN": 3,
-            "MODEM_GPS_ENABLE_GPIO": 127,
+            "MODEM_GPS_ENABLE_GPIO": 0,
             "MODEM_GPS_ENABLE_LEVEL": 1,
+        }
+    elif CURRENT_PLATFORM == "LILYGO_T_SIM7000G":
+        CONFIG = {
+            "MODEM_BAUDRATE": 115200,
+            "MODEM_DTR_PIN": 25,
+            "MODEM_TX_PIN": 27,
+            "MODEM_RX_PIN": 26,
+            "BOARD_PWRKEY_PIN": 4,
+            "BOARD_LED_PIN": 12,
+            "LED_ON": 0,
+            "BOARD_MISO_PIN": 2,
+            "BOARD_MOSI_PIN": 15,
+            "BOARD_SCK_PIN": 14,
+            "BOARD_SD_CS_PIN": 13,
+            "BOARD_BAT_ADC_PIN": 35,
+            "BOARD_SOLAR_ADC_PIN": 36,
+            "MODEM_GPS_ENABLE_GPIO": 0,
+            "MODEM_GPS_ENABLE_LEVEL": 1,
+            
+            # //! The following pins are for SimShield and need to be used with SimShield
+            # //! 以下引脚针对SimShield,需要搭配SimShield 
+            "SIMSHIELD_MOSI": 23,
+            "SIMSHIELD_MISO": 19,
+            "SIMSHIELD_SCK": 18,
+            "SIMSHIELD_SD_CS": 32,
+            "SIMSHIELD_RADIO_BUSY": 39,
+            "SIMSHIELD_RADIO_CS": 5,
+            "SIMSHIELD_RADIO_IRQ": 34,
+            "SIMSHIELD_RADIO_RST": 15,
+            "SIMSHIELD_RS_RX": 13,
+            "SIMSHIELD_RS_TX": 14,
+            "SIMSHIELD_SDA": 21,
+            "SIMSHIELD_SCL": 22,
+            "MODEM_RESET_LEVEL": 0,
+            
+            
         }
     else:
         raise ValueError("Unsupported platform")
@@ -82,4 +118,5 @@ def configure_platform():
 
 # set_platform("LILYGO_T_SIM7670G")
 # set_platform("LILYGO_T_A7670")
-set_platform("LILYGO_T_A7608X_S3")
+# set_platform("LILYGO_T_A7608X_S3")
+set_platform("LILYGO_T_SIM7000G")

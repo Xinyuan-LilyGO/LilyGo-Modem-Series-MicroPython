@@ -2,39 +2,55 @@
 #   @file      ATdebug.py
 #   @license   MIT
 #   @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
-#   @date      2025-07-04
+#   @date      2025-07-28
+AT+SIMCOMATI
 '''
 from machine import UART, Pin
 import time
 import sys
 import select
 import utilities
+import machine
 
 # Initialize UART
 uart = UART(1, baudrate=115200, tx=utilities.MODEM_TX_PIN, rx=utilities.MODEM_RX_PIN, timeout=100)
 
 def modem_init():
     # Power control
-    poweron = Pin(utilities.BOARD_POWERON_PIN, Pin.OUT)
-    poweron.value(1)
+    try:
+        poweron = Pin(utilities.BOARD_POWERON_PIN, Pin.OUT)
+        poweron.value(1)
+    except:
+        pass
     
     # Reset the modem
-    print("Set Reset Pin.")
-    reset = Pin(utilities.MODEM_RESET_PIN, Pin.OUT)
-    reset.value(not utilities.MODEM_RESET_LEVEL)
-    time.sleep(0.1)
-    reset.value(utilities.MODEM_RESET_LEVEL)
-    time.sleep(2.6)
-    reset.value(not utilities.MODEM_RESET_LEVEL)
+    try:
+        print("Set Reset Pin.")
+        reset = Pin(utilities.MODEM_RESET_PIN, Pin.OUT)
+        reset.value(not utilities.MODEM_RESET_LEVEL)
+        time.sleep(0.1)
+        reset.value(utilities.MODEM_RESET_LEVEL)
+        time.sleep(2.6)
+        reset.value(not utilities.MODEM_RESET_LEVEL)
+    except:
+        pass
+    
+    try:
+        machine.Pin(utilities.MODEM_DTR_PIN, machine.Pin.OUT).value(0)
+    except:
+        pass
     
     # Power key control
-    print("Power on the modem PWRKEY.")
-    pwrkey = Pin(utilities.BOARD_PWRKEY_PIN, Pin.OUT)
-    pwrkey.value(0)
-    time.sleep(0.1)
-    pwrkey.value(1)
-    time.sleep(0.1)
-    pwrkey.value(0)
+    try:
+        print("Power on the modem PWRKEY.")
+        pwrkey = Pin(utilities.BOARD_PWRKEY_PIN, Pin.OUT)
+        pwrkey.value(0)
+        time.sleep(0.1)
+        pwrkey.value(1)
+        time.sleep(0.1)
+        pwrkey.value(0)
+    except:
+        pass
     
     # Wait for the modem to start up
     time.sleep(3)

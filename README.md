@@ -21,6 +21,7 @@
 | [T-A7670X][1]      | ESP32-WROVER-E   | 4MB      | 8MB(QSPI) |
 | [T-Call-A7670X][2] | ESP32-WROVER-E   | 4MB      | 8MB(QSPI) |
 | [T-A7608][4]       | ESP32-WROVER-E   | 4MB      | 8MB(QSPI) |
+| [T-SIM7000G][11]   | ESP32-WROVER-E   | 4MB/16MB | 8MB(QSPI) |
 | [T-A7608-S3][6]    | ESP32-S3-WROOM-1 | 16MB     | 8MB(OPI)  |
 | [T-SIM7670G-S3][7] | ESP32-S3-WROOM-1 | 16MB     | 8MB(OPI)  |
 | [T-PCIE-A7670][8]  | ESP32-WROVER-E   | 16MB/4MB | 8MB(QSPI) |
@@ -37,47 +38,48 @@
 [7]: https://www.lilygo.cc/products/t-sim-7670g-s3
 [8]: https://lilygo.cc/products/a-t-pcie?variant=42335922094261
 [9]: https://lilygo.cc/products/t-eth-elite-1?variant=44498205049013
+[10]:  https://lilygo.cc/products/t-sim7000g
 
 ## 2️⃣Examples
 
-| Example                         | [T-A7670X][1]    | [T-Call-A7670X][2] | [T-SIM767XG-S3][6] | [T-A7608][3]    | [T-PCIE-A767X][8] | [T-A7608-S3][5] |
-| ------------------------------- | ---------------- | ------------------ | ------------------ | --------------- | ----------------- | --------------- |
-| ATdebug                         | ✅                |                    | ✅                  |                 |                   | ✅               |
-| Blynk_Console                   | ✅                |                    | ✅                  |                 |                   | ✅               |
-| GPSShield                       | ✅(Only T-A7670G) | ❌   (Can't run)    | ❌   (Can't run)    | ❌   (Can't run) | ❌   (Can't run)   | ❌   (Can't run) |
-| GPS_BuiltIn                     | ✅(Except A7670G) | (Except A7670G)    | ✅                  |                 |                   | ✅               |
-| GPS_BuiltInEx                   | ✅(Except A7670G) | (Except A7670G)    | ✅                  |                 |                   | ✅               |
-| GPS_NMEA_Parse                  | ✅(Except A7670G) | (Except A7670G)    | ✅                  |                 |                   | ✅               |
-| GPS_NMEA_Output                 | ✅(Except A7670G) | (Except A7670G)    | ✅                  |                 |                   | ✅               |
-| GPS_Acceleration                | ✅(Except A7670G) | (Except A7670G)    | ✅                  |                 |                   | ✅               |
-| TCPClientMultiple               | ✅                |                    | ✅                  |                 |                   | ✅               |
-| TextToSpeech                    | ✅                |                    | ❌   (Can't run)    |                 |                   | ✅               |
-| SecureClient                    | ✅                |                    | ✅                  |                 |                   | ✅               |
-| ReadBattery                     | ✅                | ❌   (Can't run)    | ✅                  |                 | ❌   (Can't run)   | ✅               |
-| DeepSleep                       | ✅                |                    | ✅                  |                 |                   | ✅               |
-| ModemSleep                      | ✅                |                    | ✅                  |                 |                   | ✅               |
-| ModemPowerOff                   | ✅                |                    | ✅                  |                 |                   | ✅               |
-| VoiceCalls                      | ✅                |                    | ❌                  |                 |                   | ✅               |
-| SDCard                          | ✅                | ❌   (Can't run)    | ✅                  |                 |                   | ✅               |
-| SerialRS485                     | ✅                |                    | ✅                  |                 |                   | ✅               |
-| SendSMS                         | ✅                |                    | ❌                  |                 |                   | ✅               |
-| ReadSMS                         | ✅                |                    | ❌                  |                 |                   | ✅               |
-| SendLocationFromSMS             | ✅                |                    | ❌                  |                 |                   | ✅               |
-| SendLocationFromSMS_Use_TinyGPS | ✅                |                    | ❌                  |                 |                   | ✅               |
-| LBSExample                      | ✅                |                    | ❌   (No support)   |                 |                   | ✅               |
-| Network                         | ✅                |                    | ✅                  |                 |                   | ✅               |
-| MqttsBuiltlnAuth                | ✅                |                    | ✅                  |                 |                   | ✅               |
-| MqttsBuiltlnSSL                 | ✅                |                    | ✅                  |                 |                   | ✅               |
-| MqttsBuiltlnNoSSL               | ✅                |                    | ✅                  |                 |                   | ✅               |
-| MqttsBuiltlnAWS                 | ✅                |                    | ✅                  |                 |                   | ✅               |
-| MqttsBuiltlnHivemq              | ✅                |                    | ✅                  |                 |                   | ✅               |
-| MqttsBuiltlnEMQX                | ✅                |                    | ✅                  |                 |                   | ✅               |
-| MqttsBuiltlnWill                | ✅                |                    | ✅                  |                 |                   | ✅               |
-| HttpsBuiltlnGet                 | ✅                |                    | ✅                  |                 |                   | ✅               |
-| HttpsBuiltlnPost                | ✅                |                    | ✅                  |                 |                   | ✅               |
-| HttpsBuiltlnPut                 | ✅                |                    | ✅                  |                 |                   | ✅               |
-| PowerMonitoring                 | ✅                | ❌                  | ❌(No support)      |                 | ❌                 | ✅               |
-| ULP_Monitor                     | ✅                |                    | ❌                  |                 |                   | ❌               |
+| Example                         | [T-A7670X][1]    | [T-Call-A7670X][2] | [T-SIM767XG-S3][6] | [T-A7608][3]    | [T-PCIE-A767X][8] | [T-A7608-S3][5] | [T-SIM7000G][10] |
+| ------------------------------- | ---------------- | ------------------ | ------------------ | --------------- | ----------------- | --------------- | ---------------- |
+| ATdebug                         | ✅                |                    | ✅                  |                 |                   | ✅               | ✅                |
+| Blynk_Console                   | ✅                |                    | ✅                  |                 |                   | ✅               | ✅                |
+| GPSShield                       | ✅(Only T-A7670G) | ❌   (Can't run)    | ❌   (Can't run)    | ❌   (Can't run) | ❌   (Can't run)   | ❌   (Can't run) | ❌   (Can't run)  |
+| GPS_BuiltIn                     | ✅(Except A7670G) | (Except A7670G)    | ✅                  |                 |                   | ✅               |                  |
+| GPS_BuiltInEx                   | ✅(Except A7670G) | (Except A7670G)    | ✅                  |                 |                   | ✅               |                  |
+| GPS_NMEA_Parse                  | ✅(Except A7670G) | (Except A7670G)    | ✅                  |                 |                   | ✅               |                  |
+| GPS_NMEA_Output                 | ✅(Except A7670G) | (Except A7670G)    | ✅                  |                 |                   | ✅               |                  |
+| GPS_Acceleration                | ✅(Except A7670G) | (Except A7670G)    | ✅                  |                 |                   | ✅               |                  |
+| TCPClientMultiple               | ✅                |                    | ✅                  |                 |                   | ✅               | ✅                |
+| TextToSpeech                    | ✅                |                    | ❌   (Can't run)    |                 |                   | ✅               | ❌   (Can't run)  |
+| SecureClient                    | ✅                |                    | ✅                  |                 |                   | ✅               | ✅                |
+| ReadBattery                     | ✅                | ❌   (Can't run)    | ✅                  |                 | ❌   (Can't run)   | ✅               | ✅                |
+| DeepSleep                       | ✅                |                    | ✅                  |                 |                   | ✅               | ✅                |
+| ModemSleep                      | ✅                |                    | ✅                  |                 |                   | ✅               | ✅                |
+| ModemPowerOff                   | ✅                |                    | ✅                  |                 |                   | ✅               | ✅                |
+| VoiceCalls                      | ✅                |                    | ❌                  |                 |                   | ✅               | ❌                |
+| SDCard                          | ✅                | ❌   (Can't run)    | ✅                  |                 |                   | ✅               | ✅                |
+| SerialRS485                     | ✅                |                    | ✅                  |                 |                   | ✅               | ✅                |
+| SendSMS                         | ✅                |                    | ❌                  |                 |                   | ✅               | ❌                |
+| ReadSMS                         | ✅                |                    | ❌                  |                 |                   | ✅               | ❌                |
+| SendLocationFromSMS             | ✅                |                    | ❌                  |                 |                   | ✅               | ❌                |
+| SendLocationFromSMS_Use_TinyGPS | ✅                |                    | ❌                  |                 |                   | ✅               | ❌                |
+| LBSExample                      | ✅                |                    | ❌   (No support)   |                 |                   | ✅               | ❌                |
+| Network                         | ✅                |                    | ✅                  |                 |                   | ✅               | ✅                |
+| MqttsBuiltlnAuth                | ✅                |                    | ✅                  |                 |                   | ✅               |                  |
+| MqttsBuiltlnSSL                 | ✅                |                    | ✅                  |                 |                   | ✅               |                  |
+| MqttsBuiltlnNoSSL               | ✅                |                    | ✅                  |                 |                   | ✅               |                  |
+| MqttsBuiltlnAWS                 | ✅                |                    | ✅                  |                 |                   | ✅               |                  |
+| MqttsBuiltlnHivemq              | ✅                |                    | ✅                  |                 |                   | ✅               |                  |
+| MqttsBuiltlnEMQX                | ✅                |                    | ✅                  |                 |                   | ✅               |                  |
+| MqttsBuiltlnWill                | ✅                |                    | ✅                  |                 |                   | ✅               |                  |
+| HttpsBuiltlnGet                 | ✅                |                    | ✅                  |                 |                   | ✅               |                  |
+| HttpsBuiltlnPost                | ✅                |                    | ✅                  |                 |                   | ✅               | ✅                |
+| HttpsBuiltlnPut                 | ✅                |                    | ✅                  |                 |                   | ✅               | ✅                |
+| PowerMonitoring                 | ✅                | ❌                  | ❌(No support)      |                 | ❌                 | ✅               | ❌                |
+| ULP_Monitor                     | ✅                |                    | ❌                  |                 |                   | ❌               |                  |
 
 - [1] T-A7608-ESP32 Conflict with Solar ADC
 - [2] The relay driver conflicts with the board RST and cannot work

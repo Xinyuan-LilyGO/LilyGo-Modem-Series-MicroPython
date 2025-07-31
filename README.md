@@ -73,9 +73,9 @@
 | MqttsBuiltlnNoSSL               | ✅                |                    | ✅                  |                 |                   | ✅               |                  |
 | MqttsBuiltlnAWS                 | ✅                |                    | ✅                  |                 |                   | ✅               |                  |
 | MqttsBuiltlnHivemq              | ✅                |                    | ✅                  |                 |                   | ✅               |                  |
-| MqttsBuiltlnEMQX                | ✅                |                    | ✅                  |                 |                   | ✅               |                  |
+| MqttsBuiltlnEMQX                | ✅                |                    | ✅                  |                 |                   | ✅               | ✅                |
 | MqttsBuiltlnWill                | ✅                |                    | ✅                  |                 |                   | ✅               |                  |
-| HttpsBuiltlnGet                 | ✅                |                    | ✅                  |                 |                   | ✅               |                  |
+| HttpsBuiltlnGet                 | ✅                |                    | ✅                  |                 |                   | ✅               | ✅                |
 | HttpsBuiltlnPost                | ✅                |                    | ✅                  |                 |                   | ✅               | ✅                |
 | HttpsBuiltlnPut                 | ✅                |                    | ✅                  |                 |                   | ✅               | ✅                |
 | PowerMonitoring                 | ✅                | ❌                  | ❌(No support)      |                 | ❌                 | ✅               | ❌                |

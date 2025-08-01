@@ -185,10 +185,15 @@ def mqtt_connect(client_index, server, port, client_id, keepalive_time=60):
 
 # Function to check if already connected to MQTT
 def mqtt_connected():
-    response_con = send_at_command("AT+SMSTATE?")  # Check MQTT connection status
-    print(response_con)
-    if "OK" in response_con:
-        return True  # Connected to MQTT
+    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G":
+        response_con = send_at_command("AT+SMSTATE?")  # Check MQTT connection status
+        print(response_con)
+        if "OK" in response_con:
+            return True  # Connected to MQTT
+    else:
+        response_con = send_at_command("AT+CMQTTDISC?")  # Check MQTT connection status
+        if "OK" in response_con:
+            return True  # Connected to MQTT
 
 # Function to set SSL certificates for secure connection
 def mqtt_set_certificate(ca_file, client_cert_file=None, client_cert_key=None):
@@ -428,8 +433,9 @@ def main():
                 if current_millis > check_connect_millis:
                     check_connect_millis = current_millis + 10000  # Check every 10 seconds
                     payload = "RunTime:" + str(current_millis // 1000)  # Prepare payload with runtime
-                    response = send_at_command("AT+SMSTATE?")  # Wait for response to the topic
-                    print(response)
+                    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G":
+                        response = send_at_command("AT+SMSTATE?")  # Wait for response to the topic
+                        print(response)
                     mqtt_publish(client_index, mqtt_publish_topic, payload)  # Publish the payload
                 time.sleep(0.005)  # Small delay to avoid busy loop
         except KeyboardInterrupt:

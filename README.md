@@ -8,6 +8,7 @@
 
 # News
 
+- The examples have completed most of the support for SIM7000G. The non-encrypted MQTT is currently waiting for a fix, and the encrypted MQTTS access has been verified.
 - A7670G/A7670E/A7670SA/A7672G are collectively referred to as A7670X
 - A7608SA-H/A7608E-H,A7608E,A7608SA are collectively referred to as A7608X
 - **SIM7670G** uses the **Qualcomm** platform, **A7670x** uses the **Asrmicro** platform.
@@ -21,7 +22,7 @@
 | [T-A7670X][1]      | ESP32-WROVER-E   | 4MB      | 8MB(QSPI) |
 | [T-Call-A7670X][2] | ESP32-WROVER-E   | 4MB      | 8MB(QSPI) |
 | [T-A7608][4]       | ESP32-WROVER-E   | 4MB      | 8MB(QSPI) |
-| [T-SIM7000G][11]   | ESP32-WROVER-E   | 4MB/16MB | 8MB(QSPI) |
+| [T-SIM7000G][10]   | ESP32-WROVER-E   | 4MB/16MB | 8MB(QSPI) |
 | [T-A7608-S3][6]    | ESP32-S3-WROOM-1 | 16MB     | 8MB(OPI)  |
 | [T-SIM7670G-S3][7] | ESP32-S3-WROOM-1 | 16MB     | 8MB(OPI)  |
 | [T-PCIE-A7670][8]  | ESP32-WROVER-E   | 16MB/4MB | 8MB(QSPI) |
@@ -79,7 +80,7 @@
 | HttpsBuiltlnPost                | ✅                |                    | ✅                  |                 |                   | ✅               | ✅                |
 | HttpsBuiltlnPut                 | ✅                |                    | ✅                  |                 |                   | ✅               | ✅                |
 | PowerMonitoring                 | ✅                | ❌                  | ❌(No support)      |                 | ❌                 | ✅               | ❌                |
-| ULP_Monitor                     | ✅                |                    | ❌                  |                 |                   | ❌               |                  |
+| ULP_Monitor                     | ✅                |                    | ❌                  |                 |                   | ❌               | ✅                |
 
 - [1] T-A7608-ESP32 Conflict with Solar ADC
 - [2] The relay driver conflicts with the board RST and cannot work

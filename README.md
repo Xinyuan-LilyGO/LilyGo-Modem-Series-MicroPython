@@ -71,7 +71,7 @@
 | Network                         | ✅                |                    | ✅                  |                 |                   | ✅               | ✅                |
 | MqttsBuiltlnAuth                | ✅                |                    | ✅                  |                 |                   | ✅               |                  |
 | MqttsBuiltlnSSL                 | ✅                |                    | ✅                  |                 |                   | ✅               |                  |
-| MqttsBuiltlnNoSSL               | ✅                |                    | ✅                  |                 |                   | ✅               |                  |
+| MqttsBuiltlnNoSSL               | ✅                |                    | ✅                  |                 |                   | ✅               | ✅                |
 | MqttsBuiltlnAWS                 | ✅                |                    | ✅                  |                 |                   | ✅               |                  |
 | MqttsBuiltlnHivemq              | ✅                |                    | ✅                  |                 |                   | ✅               |                  |
 | MqttsBuiltlnEMQX                | ✅                |                    | ✅                  |                 |                   | ✅               | ✅                |

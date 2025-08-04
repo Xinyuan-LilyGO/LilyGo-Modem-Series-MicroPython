@@ -2,7 +2,7 @@
 #   @file      MqttsBuiltlnEMQX.py
 #   @license   MIT
 #   @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
-#   @date      2025-07-31
+#   @date      2025-08-04
 #   @note
 #   Example is suitable for A7670X/A7608X/SIM7672 series
 #   Connect MQTT Broker as https://www.emqx.com/zh/mqtt/public-mqtt5-broker
@@ -365,6 +365,7 @@ def mqtt_publish(client_index, topic, message):
         response = send_at_command('AT+SMPUB=\"GsmMqttTest/publish\",10,0,1',wait=3)  # Wait for response to the topic
         print(response)
         uart.write(message.encode())  # Send topic as bytes
+        time.sleep(3)
         uart.write(b"\r\n")  # Send the topic with a newline
         response = send_at_command("")  # Wait for response to the topic
         print(response)

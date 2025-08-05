@@ -73,7 +73,7 @@
 | MqttsBuiltlnSSL                 | ✅                |                    | ✅                  |                 |                   | ✅               |                  |
 | MqttsBuiltlnNoSSL               | ✅                |                    | ✅                  |                 |                   | ✅               | ✅                |
 | MqttsBuiltlnAWS                 | ✅                |                    | ✅                  |                 |                   | ✅               |                  |
-| MqttsBuiltlnHivemq              | ✅                |                    | ✅                  |                 |                   | ✅               |                  |
+| MqttsBuiltlnHivemq              | ✅                |                    | ✅                  |                 |                   | ✅               | ✅                |
 | MqttsBuiltlnEMQX                | ✅                |                    | ✅                  |                 |                   | ✅               | ✅                |
 | MqttsBuiltlnWill                | ✅                |                    | ✅                  |                 |                   | ✅               |                  |
 | HttpsBuiltlnGet                 | ✅                |                    | ✅                  |                 |                   | ✅               | ✅                |

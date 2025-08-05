@@ -158,9 +158,9 @@ def mqtt_connect(client_index, server, port, client_id, keepalive_time=60):
         print(response)
         response = send_at_command('AT+SMCONF="RETAIN",1') 
         print(response)
-        response = send_at_command('AT+SMCONF="CLIENTID",A76XX') 
+        response = send_at_command(f'AT+SMCONF="CLIENTID",{mqtt_client_id}') 
         print(response)
-        response = send_at_command('AT+SMCONF=URL,"broker.emqx.io",8883',wait=5) 
+        response = send_at_command(f'AT+SMCONF=URL,"{mqtt_broker}",{mqtt_port}',wait=5) 
         print(response)
 
         if 'OK' in response:
@@ -340,7 +340,7 @@ def mqtt_connecting(client_index, server, port, client_id, ssl, keepalive_time=6
 # Function to subscribe to an MQTT topic
 def mqtt_subscribe(client_index, mqtt_publish_topic, qos=0, dup=0):
     if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G":
-        response = send_at_command('AT+SMSUB=\"GsmMqttTest/subscribe\",0',wait=5)  # Authentication mode
+        response = send_at_command(f'AT+SMSUB=\"{mqtt_subscribe_topic}\",0',wait=5)  # Authentication mode
         print(response)
         if "OK" not in response:
             return False
@@ -362,7 +362,7 @@ def mqtt_subscribe(client_index, mqtt_publish_topic, qos=0, dup=0):
 def mqtt_publish(client_index, topic, message):
     
     if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G":
-        response = send_at_command('AT+SMPUB=\"GsmMqttTest/publish\",10,0,1',wait=3)  # Wait for response to the topic
+        response = send_at_command(f'AT+SMPUB=\"{mqtt_publish_topic}\",10,0,1',wait=3)  # Wait for response to the topic
         print(response)
         uart.write(message.encode())  # Send topic as bytes
         time.sleep(3)

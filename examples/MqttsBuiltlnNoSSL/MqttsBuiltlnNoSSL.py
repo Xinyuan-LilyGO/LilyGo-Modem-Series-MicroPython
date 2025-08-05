@@ -184,9 +184,9 @@ def mqtt_connecting(client_index, server, port, client_id, ssl, keepalive_time=6
         print(response)
         response = send_at_command('AT+SMCONF="RETAIN",1')
         print(response)
-        response = send_at_command('AT+SMCONF="CLIENTID",A76XX')
+        response = send_at_command(f'AT+SMCONF="CLIENTID",{mqtt_client_id}')
         print(response)
-        response = send_at_command('AT+SMCONF=URL,"test.mosquitto.org",1883')
+        response = send_at_command(f'AT+SMCONF=URL,"{mqtt_broker}",{mqtt_port}')
         print(response)
         ret = mqtt_connect(client_index, mqtt_broker, mqtt_port, mqtt_client_id)
         if ret:
@@ -225,7 +225,7 @@ def mqtt_connecting(client_index, server, port, client_id, ssl, keepalive_time=6
 
 def mqtt_subscribe(client_index, mqtt_publish_topic, qos=0, dup=0):
     if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G":
-        response = send_at_command('AT+SMSUB="GsmMqttTest/subscribe",0',wait=3)
+        response = send_at_command(f'AT+SMSUB="{mqtt_subscribe_topic}",0',wait=3)
         print(response)
     else:
         command_sub = "AT+CMQTTSUB={},{},{},{}".format(client_index, len(mqtt_publish_topic), qos, dup)
@@ -243,7 +243,7 @@ def mqtt_subscribe(client_index, mqtt_publish_topic, qos=0, dup=0):
 # MQTT Publish function
 def mqtt_publish(client_index, topic, message):
     if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G":
-        response = send_at_command('AT+SMPUB="GsmMqttTest/publish",10,0,1',wait=3)
+        response = send_at_command(f'AT+SMPUB="{mqtt_publish_topic}",10,0,1',wait=3)
         print(response)
         uart.write(message.encode())
         time.sleep(5)

@@ -306,9 +306,9 @@ def parse_loop():
             
             date_str = values[9]  # Date
             time_str = values[10]  # Time
-            year2 = int(date_str[:2]) + 2003  # Year
+            year2 = int(date_str[4:6]) + 2000  # Year
             month2 = int(date_str[2:4])  # Month
-            day2 = int(date_str[4:6])-3  # Day
+            day2 = int(date_str[:2])  # Day
             hour2 = int(time_str[:2])  # Hour
             min2 = int(time_str[2:4])  # Minute
             sec2 = float(time_str[4:])  # Second

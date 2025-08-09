@@ -174,77 +174,80 @@ def loopGPS(gnss_mode):
             if "+CGNSINF: ,,,,,,,," not in response and "ERROR" not in response and ",,,,,,," not in response:
                 data = response.split("+CGNSINF: ")[1].split("\n")[0] 
                 values = data.split(",")
-                if len(values) >= 1:  
-                    fixMode = values[10]  # Fix mode
-                    latitude = float(values[3])  # Latitude
-                    longitude = float(values[4])  # Longitude
-                    if values[6] is not "":
-                        speed = float(values[6])  # Speed
-                    else:
-                        speed = 0.0
-                    altitude = float(values[5])  # Altitude
-                    if values[14] == "":
-                        gps_satellite_num = 0
-                    else:
-                        gps_satellite_num = int(values[14])
-                    if values[15] == "":
-                        beidou_satellite_num = 0
-                    else:
-                        beidou_satellite_num = int(values[15])
-                    if values[16] == "":
-                        glonass_satellite_num = 0
-                    else:
-                        glonass_satellite_num = int(values[16])
-                    if values[17] == "":
-                        galileo_satellite_num = 0
-                    else:
-                        galileo_satellite_num = int(values[17])
-                    course = 1.0
-                    if values[11] == "":
-                        PDOP = 0.0
-                    else:
-                        PDOP = float(values[11])
-                    HDOP = float(values[10])
-                    VDOP = float(values[12])
-                    date_str = values[2]  # Date Time
-                    year2 = int(date_str[0:4])  # Year
-                    month2 = int(date_str[4:6])  # Month
-                    day2 = int(date_str[6:8])  # Day
-                    hour2 = int(date_str[8:10])  # Hour
-                    min2 = int(date_str[10:12])  # Minute
-                    sec2 = float(date_str[12:14])  # Second
-                    # Convert UTC time to local time by adding time zone offset
-                    timezone_offset = 8  # CST is UTC+8
-                    # Adjust hours based on timezone offset
-                    hour2 += timezone_offset
-                    if hour2 >= 24:
-                        hour2 -= 24
-                    elif hour2 < 0:
-                        hour2 += 24
-                    print("FixMode:", fixMode)
-                    print("Latitude:", latitude)
-                    print("tLongitude:", longitude)
-                    print("Speed:", speed)
-                    print("Altitude:", altitude)
-                    print("Visible Satellites:")
-                    print(" GPS Satellites:", gps_satellite_num)
-                    print(" BEIDOU Satellites:", beidou_satellite_num)
-                    print(" GLONASS Satellites:", glonass_satellite_num)
-                    print(" GALILEO Satellites:", galileo_satellite_num)
-                    print("Date Time:")
-                    print("Year:", year2,)
-                    print("Month:", month2)
-                    print("Day:", day2)
-                    print("Hour:", hour2)
-                    print("Minute:", min2)
-                    print("Second:", int(sec2))
-                    print("Course:", course)
-                    print("PDOP:", PDOP)
-                    print("HDOP:", HDOP)
-                    print("VDOP:", VDOP)
-                    gps_raw = send_at_command("AT+CGNSINF")
-                    print("GPS/GNSS Based Location String:", gps_raw.split("\r\n")[1])
-                    break
+                try:
+                    if len(values) >= 1:  
+                        fixMode = values[10]  # Fix mode
+                        latitude = float(values[3])  # Latitude
+                        longitude = float(values[4])  # Longitude
+                        if values[6] is not "":
+                            speed = float(values[6])  # Speed
+                        else:
+                            speed = 0.0
+                        altitude = float(values[5])  # Altitude
+                        if values[14] == "":
+                            gps_satellite_num = 0
+                        else:
+                            gps_satellite_num = int(values[14])
+                        if values[15] == "":
+                            beidou_satellite_num = 0
+                        else:
+                            beidou_satellite_num = int(values[15])
+                        if values[16] == "":
+                            glonass_satellite_num = 0
+                        else:
+                            glonass_satellite_num = int(values[16])
+                        if values[17] == "":
+                            galileo_satellite_num = 0
+                        else:
+                            galileo_satellite_num = int(values[17])
+                        course = 1.0
+                        if values[11] == "":
+                            PDOP = 0.0
+                        else:
+                            PDOP = float(values[11])
+                        HDOP = float(values[10])
+                        VDOP = float(values[12])
+                        date_str = values[2]  # Date Time
+                        year2 = int(date_str[0:4])  # Year
+                        month2 = int(date_str[4:6])  # Month
+                        day2 = int(date_str[6:8])  # Day
+                        hour2 = int(date_str[8:10])  # Hour
+                        min2 = int(date_str[10:12])  # Minute
+                        sec2 = float(date_str[12:14])  # Second
+                        # Convert UTC time to local time by adding time zone offset
+                        timezone_offset = 8  # CST is UTC+8
+                        # Adjust hours based on timezone offset
+                        hour2 += timezone_offset
+                        if hour2 >= 24:
+                            hour2 -= 24
+                        elif hour2 < 0:
+                            hour2 += 24
+                        print("FixMode:", fixMode)
+                        print("Latitude:", latitude)
+                        print("tLongitude:", longitude)
+                        print("Speed:", speed)
+                        print("Altitude:", altitude)
+                        print("Visible Satellites:")
+                        print(" GPS Satellites:", gps_satellite_num)
+                        print(" BEIDOU Satellites:", beidou_satellite_num)
+                        print(" GLONASS Satellites:", glonass_satellite_num)
+                        print(" GALILEO Satellites:", galileo_satellite_num)
+                        print("Date Time:")
+                        print("Year:", year2,)
+                        print("Month:", month2)
+                        print("Day:", day2)
+                        print("Hour:", hour2)
+                        print("Minute:", min2)
+                        print("Second:", int(sec2))
+                        print("Course:", course)
+                        print("PDOP:", PDOP)
+                        print("HDOP:", HDOP)
+                        print("VDOP:", VDOP)
+                        gps_raw = send_at_command("AT+CGNSINF")
+                        print("GPS/GNSS Based Location String:", gps_raw.split("\r\n")[1])
+                        break
+                except:
+                    pass
     else:
         print("=========================") 
         print(f"Set GPS Mode : {gnss_mode}")

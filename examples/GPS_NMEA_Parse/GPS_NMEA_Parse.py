@@ -2,7 +2,7 @@
  * @file      GPS_NMEA_Parse.py
  * @license   MIT
  * @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
- * @date      2025-07-22
+ * @date      2025-08-09
  * @note      GPS only supports A7670X/A7608X (excluding A7670G and other versions that do not support positioning).
 '''
 import machine
@@ -15,14 +15,28 @@ import utilities
 SerialAT = UART(1, baudrate=utilities.MODEM_BAUDRATE, tx=utilities.MODEM_TX_PIN, rx=utilities.MODEM_RX_PIN)
 
 # Initialize pins
-pwrkey = Pin(utilities.BOARD_PWRKEY_PIN, Pin.OUT)
-poweron = Pin(utilities.BOARD_POWERON_PIN, Pin.OUT)
-reset_pin = Pin(utilities.MODEM_RESET_PIN, Pin.OUT)
+try:
+    pwrkey = Pin(utilities.BOARD_PWRKEY_PIN, Pin.OUT)
+except:
+    pass
+
+try:
+    poweron = Pin(utilities.BOARD_POWERON_PIN, Pin.OUT)
+except:
+    pass
+
+try:
+    reset_pin = Pin(utilities.MODEM_RESET_PIN, Pin.OUT)
+except:
+    pass
+
 gps_enable = Pin(utilities.MODEM_GPS_ENABLE_GPIO, Pin.OUT)
 
 sentences_with_fix = 0
 failed_checksum = 0
 last_sec2 = None
+chars_processed = 0
+age = 0
 
 def send_at_command(command, wait=1):
     SerialAT.write(command + "\r\n")
@@ -39,24 +53,34 @@ def send_at_command(command, wait=1):
 def modem_setup():
     global modemName
     # Turn on DC boost to power on the modem
-    poweron.value(1)
-    
+    try:
+        poweron.value(1)
+    except:
+        pass
     # Set modem reset pin ,reset modem
-    reset_pin.value(not utilities.MODEM_RESET_LEVEL)
-    time.sleep(0.1)
-    reset_pin.value(utilities.MODEM_RESET_LEVEL)
-    time.sleep(2.6)
-    reset_pin.value(not utilities.MODEM_RESET_LEVEL)
-
+    try:
+        reset_pin.value(not utilities.MODEM_RESET_LEVEL)
+        time.sleep(0.1)
+        reset_pin.value(utilities.MODEM_RESET_LEVEL)
+        time.sleep(2.6)
+        reset_pin.value(not utilities.MODEM_RESET_LEVEL)
+    except:
+        pass
+    try:
+        machine.Pin(utilities.MODEM_DTR_PIN, machine.Pin.OUT).value(0)
+    except:
+        pass
     # Turn on modem
-    pwrkey.value(0)
-    time.sleep(0.1)
-    pwrkey.value(1)
-    time.sleep(1)
-    pwrkey.value(0)
+    try:
+        pwrkey.value(0)
+        time.sleep(0.1)
+        pwrkey.value(1)
+        time.sleep(1)
+        pwrkey.value(0)
+    except:
+        pass
     print("Start modem...")
     time.sleep(3)
-    
     retry = 0
     while True:
         response = send_at_command("AT")
@@ -94,60 +118,73 @@ def modem_setup():
         time.sleep(5)
     
     print("Enabling GPS/GNSS/GLONASS")
-    response = send_at_command("AT+CVAUXS=1")
-    print(response)
-    response = send_at_command("AT+CGPSHOT")
-    print(response)
-    while True:
-        gps_enable.value(utilities.MODEM_GPS_ENABLE_LEVEL)
-        response = send_at_command("AT+CGNSSPWR=1")
+    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G":
+        response = send_at_command("AT+CGPIO=0,48,1,1")
         print(response)
-        if response:
-            break
-        print(".", end="")
+        while True:
+            gps_enable.value(utilities.MODEM_GPS_ENABLE_LEVEL)
+            response = send_at_command("AT+CGNSPWR=1")
+            print(response)
+            if 'OK' in response:
+                break
+            print(".", end="")
+        print("\nGPS Enabled")
+        print("Sats HDOP  Latitude   Longitude   Fix  Date       Time     Date Alt    Course Speed Card  Distance Course Card  Chars Sentences Checksum")
+        print("           (deg)      (deg)       Age                      Age  (m)    --- from GPS ----  ---- to London  ----  RX    RX        Fail")
+        print("----------------------------------------------------------------------------------------------------------------------------------------")
         
-    print("\nGPS Enabled")
+    else:
+        response = send_at_command("AT+CVAUXS=1")
+        print(response)
+        response = send_at_command("AT+CGPSHOT")
+        print(response)
+        while True:
+            gps_enable.value(utilities.MODEM_GPS_ENABLE_LEVEL)
+            response = send_at_command("AT+CGNSSPWR=1")
+            print(response)
+            if response:
+                break
+            print(".", end="")
+            
+        print("\nGPS Enabled")
 
-    # Set GPS Baud to 115200
-    response = send_at_command("AT+CGNSSIPR=115200")
-    print(response)
+        # Set GPS Baud to 115200
+        response = send_at_command("AT+CGNSSIPR=115200")
+        print(response)
+        
+        response = send_at_command("AT+CGNSSMODE=3")
+        print(response)
+        
+        response = send_at_command("AT+CGNSSNMEA=1,1,1,1,1,1,0,0")
+        print(response)
+        
+        response = send_at_command("AT+CGPSNMEARATE=1")
+        print(response)
+        
+        response = send_at_command("AT+CGNSSTST=1")
+        print(response)
+        
+    #     response = send_at_command("AT+CGNSSPORTSWITCH=0,1")
+    #     print(response)
     
-    response = send_at_command("AT+CGNSSMODE=3")
-    print(response)
-    
-    response = send_at_command("AT+CGNSSNMEA=1,1,1,1,1,1,0,0")
-    print(response)
-    
-    response = send_at_command("AT+CGPSNMEARATE=1")
-    print(response)
-    
-    response = send_at_command("AT+CGNSSTST=1")
-    print(response)
-    
-#     response = send_at_command("AT+CGNSSPORTSWITCH=0,1")
-#     print(response)
-    
-    print("Sats HDOP  Latitude   Longitude   Fix  Date       Time     Date Alt    Course Speed Card  Distance Course Card  Chars Sentences Checksum")
-    print("           (deg)      (deg)       Age                      Age  (m)    --- from GPS ----  ---- to London  ----  RX    RX        Fail")
-    print("----------------------------------------------------------------------------------------------------------------------------------------")
-    
+        print("Sats HDOP  Latitude   Longitude   Fix  Date       Time     Date Alt    Course Speed Card  Distance Course Card  Chars Sentences Checksum")
+        print("           (deg)      (deg)       Age                      Age  (m)    --- from GPS ----  ---- to London  ----  RX    RX        Fail")
+        print("----------------------------------------------------------------------------------------------------------------------------------------")
+        
 
 def printInt(val, valid, length):
     if not valid:
         sz = '*' * length
     else:
         sz = str(val)
-    
     # Handle string length
     if len(sz) > length:
         sz = sz[:length]
     elif len(sz) < length:
         sz = sz + ' ' * (length - len(sz))
-    
     # Replace last character with space if length > 0
     if length > 0 and len(sz) > 0:
         sz = sz[:-1] + ' '
-    
     print(sz, end='')
     smart_delay(0)
 
@@ -158,12 +195,10 @@ def printFloat(val, valid, length, prec):
         # Manual float formatting
         s = "{0:.{1}f}".format(val, prec)
         print(s, end='')
-        
         # Calculate padding needed
         padding = length - len(s)
         if padding > 0:
             print(' ' * padding, end='')
-    
     smart_delay(0)
 
 def printDateTime(month, day, year, hour, minute, second, date_valid=True, time_valid=True):
@@ -283,109 +318,209 @@ def calculate_course(lat1, lon1, lat2, lon2):
     return bearing
 
 def parse_loop():
-    global sentences_with_fix, last_sec2, age
-    while True:
-        response = send_at_command("AT+CGNSSPWR?")
+    global sentences_with_fix, last_sec2, age, chars_processed 
+    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G":
+        response = send_at_command(f"AT+CGNSMOD=1,1,1,0",wait=3)
 #         print(response)
-        response = send_at_command("AT+CGNSSINFO")
-#         print("GPS/GNSS Based Location String:", response.split("\r\n")[1])
-        if "+CGNSSINFO: ,,,,,,,," not in response and "ERROR" not in response:
-            data = response.split("+CGNSSINFO: ")[1].split("\n")[0]
-            values = data.split(",")
-            
-            chars_processed += len(data)  # Count characters processed
-            sentences_with_fix += 20  # Increase the count of sentences with fixes                
-            
-            if values[17] is not "":
-                satellites_value = int(values[17])
+        while True:
+            response = send_at_command("AT+CGNSINF",wait=6)
+#             print("Full Response:", response)
+            if "+CGNSINF: ,,,,,,,," not in response and "ERROR" not in response and ",,,,,,," not in response:
+                data = response.split("+CGNSINF: ")[1].split("\n")[0] 
+                values = data.split(",")
+                chars_processed += len(data)  # Count characters processed
+                sentences_with_fix += 20  # Increase the count of sentences with fixes                
+                satellites_value = 1 
+                if values[11] is not "":
+                    satellites_value = int(float(values[11]))
+                else:
+                    satellites_value =  0
+                if values[10] is not "":
+                    hdop = float(values[10])
+                else:
+                    hdop = 0
+                if values[10] is not "":
+                    lat = float(values[3])  # Latitude
+                else:
+                    lat = 0
+                if values[10] is not "":
+                    lng = float(values[4])  # Longitude
+                else:
+                    lng = 0
+                date_str = values[2]  # Date Time
+                year2 = int(date_str[0:4])  # Year
+                month2 = int(date_str[4:6])  # Month
+                day2 = int(date_str[6:8])  # Day
+                hour2 = int(date_str[8:10])  # Hour
+                min2 = int(date_str[10:12])  # Minute
+                sec2 = float(date_str[12:14])  # Second
+                if last_sec2 is not None:
+                    age = sec2 - last_sec2
+                    if age < 0:
+                        age += 60 
+                    age = int(age * 1000)
+                last_sec2 = sec2
+                # Convert UTC time to local time by adding time zone offset
+                timezone_offset = 8  # CST is UTC+8
+                # Adjust hours based on timezone offset
+                hour2 += timezone_offset
+                if hour2 >= 24:
+                    hour2 -= 24
+                elif hour2 < 0:
+                    hour2 += 24
+                if values[11] is not "":
+                    meters = float(values[11])
+                else:
+                    meters = 0.0
+                if values[12] is not "":
+                    kmph = float(values[12])
+                else:
+                    kmph = 0.0
+                if values[13] is not "":
+                    deg = float(values[13])
+                else:
+                    deg = 0.0
+                failed_checksum = 0
             else:
                 satellites_value = 0
-            hdop = float(values[15])
-            lat = float(values[5])  # Latitude
-            lng = float(values[7])  # Longitude
-            
-            date_str = values[9]  # Date
-            time_str = values[10]  # Time
-            year2 = int(date_str[4:6]) + 2000  # Year
-            month2 = int(date_str[2:4])  # Month
-            day2 = int(date_str[:2])  # Day
-            hour2 = int(time_str[:2])  # Hour
-            min2 = int(time_str[2:4])  # Minute
-            sec2 = float(time_str[4:])  # Second
-            if last_sec2 is not None:
-                age = sec2 - last_sec2
-                if age < 0:
-                    age += 60 
-                age = int(age*1000)
-            last_sec2 = sec2
-            
-            # Convert UTC time to local time by adding time zone offset
-            timezone_offset = 8  # CST is UTC+8
-            # Adjust hours based on timezone offset
-            hour2 += timezone_offset
-            if hour2 >= 24:
-                hour2 -= 24
-            elif hour2 < 0:
-                hour2 += 24
-            
-            if values[11] is not "":
-                meters = float(values[11])
-            if values[12] is not "":
-                kmph = float(values[12])
-            if values[13] is not "":
-                deg = float(values[13])
-            
-            
-        else:
-            satellites_value = 0
-            hdop = 0
-            lat = 0
-            lng = 0
-            year2 = 0
-            month2 = 0
-            day2 = 0
-            hour2 = 0
-            min2 = 0
-            sec2 = 0
-            meters = 0
-            deg = 0
-            kmph = 0
-            age = 0
-            chars_processed =0
-            sentences_with_fix += 2
-            failed_checksum = 0
-            time.sleep(10)
-            
-        LONDON_LAT = 51.508131
-        LONDON_LON = -0.128002
-        
-        printInt(satellites_value, 1, 5)
-        printFloat(hdop, 1, 6, 1)
-        printFloat(lat, 1, 11, 6)
-        printFloat(lng, 1, 12, 6)
-        printInt(age, 1, 5)
-        printDateTime(month2, day2, year2, hour2, min2, int(sec2))
-        printFloat(meters, 1, 7, 2)
-        printFloat(deg, 1, 7, 2)
-        printFloat(kmph, 1, 6, 2)
-        direction = degrees_to_cardinal(deg)
-        printStr(direction, 6)
-        distance_meters = haversine_distance(
-            lat,
-            lng,
-            LONDON_LAT,
-            LONDON_LON)
-        distance_km = distance_meters / 1000
-        printInt(int(distance_km), 1, 9)
-        course_to_london = calculate_course(lat, lng, LONDON_LAT, LONDON_LON)
-        printFloat(course_to_london, 1, 7, 2)
-        cardinal_dir = degrees_to_cardinal(course_to_london)
-        printStr(cardinal_dir, 6)
-        printInt(chars_processed, 1, 6)  # Display chars processed
-        printInt(sentences_with_fix, 1, 10)  # Display sentences with fix
-        printInt(failed_checksum, 1, 9)  # Display failed checksums
-        print()  # New line after each reading
-
+                hdop = 0
+                lat = 0
+                lng = 0
+                year2 = 0
+                month2 = 0
+                day2 = 0
+                hour2 = 0
+                min2 = 0
+                sec2 = 0
+                meters = 0
+                deg = 0
+                kmph = 0
+                age = 0
+                chars_processed =0
+                sentences_with_fix += 2
+                failed_checksum = 0
+                time.sleep(10)
+            LONDON_LAT = 51.508131
+            LONDON_LON = -0.128002
+            printInt(satellites_value, 1, 5)
+            printFloat(hdop, 1, 6, 1)
+            printFloat(lat, 1, 11, 6)
+            printFloat(lng, 1, 12, 6)
+            printInt(age, 1, 5)
+            printDateTime(month2, day2, year2, hour2, min2, int(sec2))
+            printFloat(meters, 1, 7, 2)
+            printFloat(deg, 1, 7, 2)
+            printFloat(kmph, 1, 6, 2)
+            direction = degrees_to_cardinal(deg)
+            printStr(direction, 6)
+            distance_meters = haversine_distance(
+                lat,
+                lng,
+                LONDON_LAT,
+                LONDON_LON)
+            distance_km = distance_meters / 1000
+            printInt(int(distance_km), 1, 9)
+            course_to_london = calculate_course(lat, lng, LONDON_LAT, LONDON_LON)
+            printFloat(course_to_london, 1, 7, 2)
+            cardinal_dir = degrees_to_cardinal(course_to_london)
+            printStr(cardinal_dir, 6)
+            printInt(chars_processed, 1, 6)  # Display chars processed
+            printInt(sentences_with_fix, 1, 10)  # Display sentences with fix
+            printInt(failed_checksum, 1, 9)  # Display failed checksums
+            print()  # New line after each reading
+    else:
+        while True:
+            response = send_at_command("AT+CGNSSPWR?")
+    #         print(response)
+            response = send_at_command("AT+CGNSSINFO")
+    #         print("GPS/GNSS Based Location String:", response.split("\r\n")[1])
+            if "+CGNSSINFO: ,,,,,,,," not in response and "ERROR" not in response:
+                data = response.split("+CGNSSINFO: ")[1].split("\n")[0]
+                values = data.split(",")
+                chars_processed += len(data)  # Count characters processed
+                sentences_with_fix += 20  # Increase the count of sentences with fixes                
+                if values[17] is not "":
+                    satellites_value = int(values[17])
+                else:
+                    satellites_value = 0
+                hdop = float(values[15])
+                lat = float(values[5])  # Latitude
+                lng = float(values[7])  # Longitude
+                date_str = values[9]  # Date
+                time_str = values[10]  # Time
+                year2 = int(date_str[4:6]) + 2000  # Year
+                month2 = int(date_str[2:4])  # Month
+                day2 = int(date_str[:2])  # Day
+                hour2 = int(time_str[:2])  # Hour
+                min2 = int(time_str[2:4])  # Minute
+                sec2 = float(time_str[4:])  # Second
+                if last_sec2 is not None:
+                    age = sec2 - last_sec2
+                    if age < 0:
+                        age += 60 
+                    age = int(age*1000)
+                last_sec2 = sec2 
+                # Convert UTC time to local time by adding time zone offset
+                timezone_offset = 8  # CST is UTC+8
+                # Adjust hours based on timezone offset
+                hour2 += timezone_offset
+                if hour2 >= 24:
+                    hour2 -= 24
+                elif hour2 < 0:
+                    hour2 += 24
+                if values[11] is not "":
+                    meters = float(values[11])
+                if values[12] is not "":
+                    kmph = float(values[12])
+                if values[13] is not "":
+                    deg = float(values[13]) 
+            else:
+                satellites_value = 0
+                hdop = 0
+                lat = 0
+                lng = 0
+                year2 = 0
+                month2 = 0
+                day2 = 0
+                hour2 = 0
+                min2 = 0
+                sec2 = 0
+                meters = 0
+                deg = 0
+                kmph = 0
+                age = 0
+                chars_processed =0
+                sentences_with_fix += 2
+                failed_checksum = 0
+                time.sleep(10)
+            LONDON_LAT = 51.508131
+            LONDON_LON = -0.128002
+            printInt(satellites_value, 1, 5)
+            printFloat(hdop, 1, 6, 1)
+            printFloat(lat, 1, 11, 6)
+            printFloat(lng, 1, 12, 6)
+            printInt(age, 1, 5)
+            printDateTime(month2, day2, year2, hour2, min2, int(sec2))
+            printFloat(meters, 1, 7, 2)
+            printFloat(deg, 1, 7, 2)
+            printFloat(kmph, 1, 6, 2)
+            direction = degrees_to_cardinal(deg)
+            printStr(direction, 6)
+            distance_meters = haversine_distance(
+                lat,
+                lng,
+                LONDON_LAT,
+                LONDON_LON)
+            distance_km = distance_meters / 1000
+            printInt(int(distance_km), 1, 9)
+            course_to_london = calculate_course(lat, lng, LONDON_LAT, LONDON_LON)
+            printFloat(course_to_london, 1, 7, 2)
+            cardinal_dir = degrees_to_cardinal(course_to_london)
+            printStr(cardinal_dir, 6)
+            printInt(chars_processed, 1, 6)  # Display chars processed
+            printInt(sentences_with_fix, 1, 10)  # Display sentences with fix
+            printInt(failed_checksum, 1, 9)  # Display failed checksums
+            print()  # New line after each reading
 
 def smart_delay(ms):
     start = time.ticks_ms()
@@ -394,7 +529,6 @@ def smart_delay(ms):
             data = SerialAT.read()
             # Process incoming data if needed
             pass
-
 
 def main():
     global modemName

@@ -10,7 +10,6 @@
 # News
 
 - 2025/08/11 : The example has completed most of the support for SIM7000G. For non-encrypted MQTT, please refer to the description above the example. Some of them are not supported.
-- The TinyGSM used in the example is a [fork](https://github.com/lewisxhe/TinyGSM) to support A7670,A7608,SIM7672G,SIM7670G, If you use the master branch, the compilation will not go smoothly
 
 > \[!IMPORTANT]
 > If you encounter a problem during use, first check whether the modem's current firmware version is the latest, and then search for [issues](https://github.com/Xinyuan-LilyGO/LilyGo-Modem-Series/issues) to see if there are similar issues.

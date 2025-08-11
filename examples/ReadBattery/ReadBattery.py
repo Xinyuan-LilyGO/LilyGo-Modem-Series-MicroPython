@@ -10,6 +10,12 @@
 #                           voltage is sent to the UDP Server through UDP. When using it, please disconnect the USB-C
 #              T-A7670x :  Only version V1.4 has the resistor divider connected to the solar input, other versions IO38 is not connected
 #   @note      Only support T-A7670 ,T-A7608X, T-SIM7672G board , not support T-Call A7670 , T-PCIE-A7670
+#
+#              The AT+CBC command only supports the following versions , Other versions cannot read it because the hardware is not connected.
+#                1. T-A7670X-S3-Standard
+#                2. T-SIM7000G-S3-Standard
+#                3. T-SIM7080G-S3-Standard
+#                4. T-SIM7670G-S3-Standard
 '''
 import network
 import socket

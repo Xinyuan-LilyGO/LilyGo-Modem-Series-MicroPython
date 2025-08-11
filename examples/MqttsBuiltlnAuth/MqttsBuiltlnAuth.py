@@ -4,7 +4,7 @@
 #   @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
 #   @date      2025-08-09
 #   @note
-#   Example is suitable for A7670X/A7608X/SIM7672 series
+#   Example is suitable for A7670X/A7608X/SIM7670G/SIM7000G/SIM7080G/SIM7600 series
 #   Connect MQTT Broker as https://test.mosquitto.org/
 '''
 import time

@@ -3,6 +3,7 @@
 #   @license   MIT
 #   @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
 #   @date      2025-07-28
+#   Example is suitable for A7670X/A7608X/SIM7670G/SIM7000G/SIM7600 series
 '''
 import time
 import machine

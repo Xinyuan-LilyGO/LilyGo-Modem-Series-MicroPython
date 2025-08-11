@@ -81,18 +81,28 @@
 
 ### A7608E-H
 
-* [A7608E-H B11](https://drive.google.com/file/d/1IfNkPfQmfG3oqbXEZl0YD_9qgLsN4e_D/view?usp=sharing)
+<!-- * [A7608E-H B11](https://drive.google.com/file/d/1IfNkPfQmfG3oqbXEZl0YD_9qgLsN4e_D/view?usp=sharing) -->
+* [A7608E-H B14](https://drive.google.com/file/d/1NNixH5VYale9fS1JkHSBdoM-KiiMboWY/view?usp=sharing)
 
 ------------------------
 
 ### A7608SA-H
 
+* [A7608SA-H A81C4B01 latest](https://drive.google.com/file/d/1lf7EFa7uaI9fyr25b4Ik2SW36P-22rWG/view?usp=sharing)
 * [A7608SA-H B11](https://drive.google.com/file/d/1ktLzCjnd0TXzbiythU1EaWVkAokXzkf9/view?usp=sharing)
 * [A7608SA-H A50C4B13](https://drive.google.com/file/d/1-LsgDug-Zz_0kU96HlCGtfks3ruvjcQb/view?usp=sharing)
 
 ------------------------
 
 **Please provide the information in the QR code on the modem to LilyGo to confirm the firmware version.**
+
+> \[!IMPORTANT]
+> Steps to enter upgrade mode
+> 1. Press and hold the SBOOT button close to the Modelm and do not release it.
+> 2. Plug in MICRO-USB
+> 3. Plug in USB-C
+> 4. Check the device manager and wait for the computer port to be generated
+> 5. Release the SBOOT button after the port is identified
 
 ### Record Video 
 

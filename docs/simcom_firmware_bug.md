@@ -1,8 +1,20 @@
 
 # This page summarizes SIMCOM firmware BUG version numbers
 
-------------------------
+## A7670G-LLSE
 
+### Known version firmware bugs
+#### BUG: There is a problem with FS writing
+
+-----------------------
+
+```bash
+Model: A7670G-LLSE
+Revision: A124B01A7670M7
+A7670M7_B01V01_240722
+```
+
+------------------------
 
 ## A7670E-LNXY-UBL
 
@@ -38,3 +50,22 @@ SIM767XM5_B04V01_241010
 ```
 
 ------------------------
+
+
+# A7608SA-H
+
+
+### Known version firmware bugs
+
+#### BUG: Hivemq MQTT Can't connect
+
+```bash
+Manufacturer: INCORPORATED
+Model: A7608SA-H
+Revision: A50C4B12A7600M7
+A7600M7_B12V01_240315
+QCN:
+MEID:
++GCAP: +CGSM,+FCLASS,+DS
+DeviceInfo:
+```

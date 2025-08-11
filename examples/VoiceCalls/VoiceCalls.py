@@ -3,7 +3,7 @@
  * @license   MIT
  * @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
  * @date      2025-07-21
- * @note      Not support T-SIM7672
+ * @note      Not support T-SIM7670G,SIM7000G
  * * Voice calls require external welding of the condenser microphone and speaker.
  * * Generally, the board silk screen is marked SPK. The speaker needs to be welded,
  * * and the MIC silk screen position needs to weld the condenser microphone.

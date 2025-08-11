@@ -12,8 +12,7 @@
 - 2025/08/11 : The example has completed most of the support for SIM7000G. For non-encrypted MQTT, please refer to the description above the example. Some of them are not supported.
 
 > \[!IMPORTANT]
-> If you encounter a problem during use, first check whether the modem's current firmware version is the latest, and then search for [issues](https://github.com/Xinyuan-LilyGO/LilyGo-Modem-Series/issues) to see if there are similar issues.
->
+> If you encounter a problem during use, first check whether the modem's current firmware version is the latest.
 
 ## ESP32 Version Get Started
 

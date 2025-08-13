@@ -1,7 +1,7 @@
 #   @file      ModemPowerOff.py
 #   @license   MIT
 #   @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
-#   @date      2025-07-28
+#   @date      2025-08-12
 #   @note      Known issues, ESP32 (V1.2) version of T-A7670, T-A7608,
 #              when using battery power supply mode, BOARD_POWERON_PIN (IO12) must be set to high level after esp32 starts, otherwise a reset will occur.
 
@@ -22,7 +22,9 @@ def modem_test_at():
     return False
 
 def modem_poweroff():
-    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G":
+    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G" \
+       or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G_S3_STAN" \
+        or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7080G_S3_STAN":
         uart.write('AT+CPOWD=1\r\n')
         time.sleep(3)
         if uart.any():

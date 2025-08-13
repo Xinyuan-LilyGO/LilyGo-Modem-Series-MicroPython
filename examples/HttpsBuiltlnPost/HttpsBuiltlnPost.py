@@ -2,7 +2,7 @@
 #   @file      HttpsBuiltlnPost.py
 #   @license   MIT
 #   @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
-#   @date      2025-07-30
+#   @date      2025-08-13
 #   @note
 #   Example is suitable for A7670X/A7608X/SIM7672 series
 #   Connect https://httpbin.org test post request
@@ -19,6 +19,7 @@ APN = ""  # Replace with your APN (CHN-CT: China Telecom)
 
 # Server URL
 server_url = "https://httpbin.org/post"
+lens = 0
 
 # Initialize the serial interface for the modem
 uart = machine.UART(1, baudrate=utilities.MODEM_BAUDRATE, tx=utilities.MODEM_TX_PIN, rx=utilities.MODEM_RX_PIN)
@@ -84,7 +85,9 @@ def check_sim():
             time.sleep(3)
 
 def connect_network(apn):
-    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G":
+    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G" \
+       or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G_S3_STAN" \
+        or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7080G_S3_STAN":
         response = send_at_command("AT+CNMP=2")
         print(response)
         response = send_at_command("AT+CNMP=?")
@@ -98,8 +101,8 @@ def connect_network(apn):
         print(response)
         response = send_at_command("AT+CNACT?",wait=5)
         print(response)
-#         response = send_at_command("AT+CNACT=1",wait=5)
-#         print(response)
+        response = send_at_command("AT+CNACT=0,1",wait=5)
+        print(response)
         response = send_at_command("AT+CNACT?",wait=5)
         print(response)
         match = re.search(r'"(\d+\.\d+\.\d+\.\d+)"', response)
@@ -127,7 +130,10 @@ def connect_network(apn):
 
 # Function to perform HTTPS POST request
 def perform_https_post():
-    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G":
+    global lens
+    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G" \
+       or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G_S3_STAN" \
+        or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7080G_S3_STAN":
         response = send_at_command("AT+SHDISC")   
         print(response)
         response = send_at_command('AT+CSSLCFG=\"sni\",0,1')   
@@ -148,28 +154,29 @@ def perform_https_post():
         print(response)
         response = send_at_command('AT+SHCONF=\"URL\",\"https://httpbin.org\"',wait=5)   
         print(response)
-        response = send_at_command("AT+SHCONN",wait=5)   
+        response = send_at_command("AT+SHCONN",wait=3)
         print(response)
-        response = send_at_command('AT+SHAHEAD=\"Accept-Language\",\"zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6\"',wait=5)   
+        while True:
+            response = send_at_command("AT+SHCONN",wait=3)
+            if 'OK' in response or 'ERROR' in response:
+                print(response)
+                break
+        response = send_at_command('AT+SHAHEAD=\"Accept-Language\",\"zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6\"',wait=8)   
         print(response)
-        response = send_at_command('AT+SHAHEAD=\"Accept-Encoding\",\"gzip, deflate, br\"',wait=5)   
+        response = send_at_command('AT+SHAHEAD=\"Accept-Encoding\",\"gzip, deflate, br\"',wait=8)   
         print(response)
-        response = send_at_command('AT+SHAHEAD=\"ACCEPT\",\"application/json\"',wait=5)   
+        response = send_at_command('AT+SHAHEAD=\"ACCEPT\",\"application/json\"',wait=8)   
         print(response)
-        response = send_at_command('AT+SHAHEAD=\"User-Agent\",\"TinyGSM/LilyGo-A76XX\"',wait=5)   
+        response = send_at_command('AT+SHAHEAD=\"User-Agent\",\"TinyGSM/LilyGo-A76XX\"',wait=8)   
         print(response)
-        response = send_at_command('AT+SHBOD=\"This is post example!\",21',wait=5)   
+        response = send_at_command('AT+SHBOD=21,10000',wait=8)   
         print(response)
+        uart.write("This is post example!")
+        time.sleep(3)
+        uart.write(b"\r\n") 
         response = send_at_command('AT+SHREQ="/post",3',wait=5)   
         print(response)
-        match = re.search(r'(\d+)$', response)
-        if match:
-            lens = int(match.group(1))
-        print("HTTP Header : SIM70XX MODEM does not support getting request header")
-        response = send_at_command(f"AT+SHREAD=0,{lens}",wait=5)   
-        print(response)
-        time.sleep(5)
-        response = send_at_command("AT+SHDISC")   
+        response = send_at_command('AT+SHREAD=0,511',wait=10)   
         print(response)
     else:
         # Prepare the data to send

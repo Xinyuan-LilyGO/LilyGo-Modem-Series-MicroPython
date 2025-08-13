@@ -82,7 +82,7 @@ def check_sim():
             time.sleep(3)
 
 def connect_network(apn):
-    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G":
+    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G" or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G_S3_STAN" or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7080G_S3_STAN":
         response = send_at_command("AT+CNMP=2")
         print(response)
         response = send_at_command("AT+CNMP=?")
@@ -94,11 +94,11 @@ def connect_network(apn):
             print("Online registration successful")
         response = send_at_command("AT+CPSI?")
         print(response)
-        response = send_at_command("AT+CNACT?")
+        response = send_at_command("AT+CNACT?",wait=3)
         print(response)
-        response = send_at_command("AT+CNACT=1",wait=3)
+        response = send_at_command("AT+CNACT=0,1",wait=3)
         print(response)
-        response = send_at_command("AT+CNACT?")
+        response = send_at_command("AT+CNACT?",wait=3)
         print(response)
         match = re.search(r'"(\d+\.\d+\.\d+\.\d+)"', response)
         if match:
@@ -138,7 +138,7 @@ def main():
     wait_time = 10000
     url= "www.baidu.com"
     for i in range(20):
-        if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G":
+        if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G" or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G_S3_STAN" or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7080G_S3_STAN":
             command = f'AT+SNPING4="{url}",{dest_addr_type},{data_packet_size},{interval_time}'
             response = send_at_command(command,wait=3)
             print(response)
@@ -186,7 +186,6 @@ def main():
                 print(f"Error code: {error_code}")
 
             time.sleep(1)  # Optional sleep to avoid flooding the network
-
 
 if __name__ == "__main__":
     main()

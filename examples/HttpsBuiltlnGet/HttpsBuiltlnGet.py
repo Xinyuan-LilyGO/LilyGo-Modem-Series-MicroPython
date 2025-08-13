@@ -2,7 +2,7 @@
 #   @file      HttpsBuiltlnGet.py
 #   @license   MIT
 #   @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
-#   @date      2025-07-31
+#   @date      2025-08-13
 #   @note
 #   Example is suitable for A7670X/A7608X/SIM7672 series
 #   Connect https://httpbin.org test get request
@@ -29,6 +29,7 @@ request_urls = [
 # Initialize the UART interface for the modem
 uart = machine.UART(1, baudrate=utilities.MODEM_BAUDRATE, tx=utilities.MODEM_TX_PIN, rx=utilities.MODEM_RX_PIN)
 time.sleep(1)
+lens = 0
 
 # Modem power on and reset sequence
 def modem_power_on():
@@ -85,7 +86,9 @@ def check_sim():
             time.sleep(3)
 
 def connect_network(apn):
-    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G":
+    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G" \
+       or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G_S3_STAN" \
+        or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7080G_S3_STAN":
         response = send_at_command("AT+CNMP=2")
         print(response)
         response = send_at_command("AT+CNMP=?")
@@ -99,7 +102,7 @@ def connect_network(apn):
         print(response)
         response = send_at_command("AT+CNACT?",wait=3)
         print(response)
-        response = send_at_command("AT+CNACT=1",wait=3)
+        response = send_at_command("AT+CNACT=0,1")
         print(response)
         response = send_at_command("AT+CNACT?",wait=3)
         print(response)
@@ -126,7 +129,10 @@ def connect_network(apn):
             print("Failed to retrieve IP address.")
 
 def perform_https_requests():
-    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G":
+    global lens
+    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G" \
+       or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G_S3_STAN" \
+        or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7080G_S3_STAN":
         for url in request_urls:
             first_slash_index = url.find('/', 8) 
             if first_slash_index != -1:
@@ -160,15 +166,21 @@ def perform_https_requests():
                 print(response)
                 response = send_at_command("AT+SHCONN",wait=3)
                 print(response)
-                time.sleep(10)
-                response = send_at_command(f'AT+SHREQ=\"{url2}\",1',wait=8)
+                while True:
+                    response = send_at_command("AT+SHCONN",wait=3)
+                    if 'OK' in response or 'ERROR' in response:
+                        print(response)
+                        break
+                response = send_at_command(f'AT+SHREQ=\"{url2}\",1',wait=3)
                 print(response)
+                time.sleep(3)
                 match = re.search(r'(\d+)$', response)
                 if match:
                     lens = int(match.group(1))
                     print(lens)
+                    time.sleep(3)
                 print("HTTP Header : SIM70XX MODEM does not support getting request header")
-                response = send_at_command(f'AT+SHREAD=0,{lens}',wait=10)
+                response = send_at_command(f'AT+SHREAD=0,{lens}')
                 print(response)
                 break
             print("-------------------------------------")

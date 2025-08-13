@@ -106,8 +106,63 @@ def configure_platform():
             "SIMSHIELD_RS_TX": 14,
             "SIMSHIELD_SDA": 21,
             "SIMSHIELD_SCL": 22,
-            "MODEM_RESET_LEVEL": 0,
+        }
+    elif CURRENT_PLATFORM == "LILYGO_T_A7670X_S3_STAN" or CURRENT_PLATFORM == "LILYGO_T_SIM7000G_S3_STAN" or CURRENT_PLATFORM == "LILYGO_T_SIM7080G_S3_STAN" or CURRENT_PLATFORM == "LILYGO_T_SIM7670G_S3_STAN":
+        CONFIG = {
+            "MODEM_BAUDRATE": 115200,
+            "BOARD_SDA_PIN": 3,
+            "BOARD_SCL_PIN": 2,
+
+            "MODEM_DTR_PIN": 7,
+            "MODEM_TX_PIN": 4,
+            "MODEM_RX_PIN": 5,
+            "MODEM_RING_PIN": 6,
+
+            '''
+            * GPS communication pin. If the modem has GPS function, 
+            * NMEA data can be read through this IO. 
+            * If an external GPS module is used, the same GPIO is used for communication.
+            '''
+           "MODEM_GPS_RX_PIN": 48,
+           "MODEM_GPS_TX_PIN": 45,
+           "MODEM_GPS_PPS_PIN": 17,
+
+            # This IO is only used when using an external GPS module, such as A7670G+L76K GPS
+           "GPS_SHIELD_WAKEUP_PIN": 0,
+
+            # The modem boot pin needs to follow the startup sequence.
+            "BOARD_PWRKEY_PIN": 46,
             
+            # Analog pins are already connected to the ADC voltage divider circuit and cannot be used for other purposes
+            "BOARD_BAT_ADC_PIN": 8,
+            "BOARD_SOLAR_ADC_PIN": 18,
+
+            # SD Socket pins
+            "BOARD_MISO_PIN": 13,
+            "BOARD_MOSI_PIN": 11,
+            "BOARD_SCK_PIN": 12,
+            "BOARD_SD_CS_PIN": 10,
+
+            # Enable / disable power save mode (1 disabled, 0 enabled)
+            "BOARD_POWER_SAVE_MODE_PIN": 42,
+
+            # CAMERA_XXX_PIN is routed to the pin header and camera connector
+            "CAMERA_PWDN_PIN": -1,
+            "CAMERA_RESET_PIN": -1,
+            "CAMERA_XCLK_PIN": 21,
+            "CAMERA_SIOD_PIN": 1,
+            "CAMERA_SIOC_PIN": 41,
+            "CAMERA_VSYNC_PIN": 9,
+            "CAMERA_HREF_PIN": 14,
+            "CAMERA_PCLK_PIN": 37,
+            "CAMERA_Y9_PIN": 40,
+            "CAMERA_Y8_PIN": 39,
+            "CAMERA_Y7_PIN": 38,
+            "CAMERA_Y6_PIN": 36,
+            "CAMERA_Y5_PIN": 16,
+            "CAMERA_Y4_PIN": 47,
+            "CAMERA_Y3_PIN": 15,
+            "CAMERA_Y2_PIN": 35,
             
         }
     else:
@@ -119,4 +174,8 @@ def configure_platform():
 # set_platform("LILYGO_T_SIM7670G")
 # set_platform("LILYGO_T_A7670")
 # set_platform("LILYGO_T_A7608X_S3")
-set_platform("LILYGO_T_SIM7000G")
+# set_platform("LILYGO_T_SIM7000G")
+# set_platform("LILYGO_T_A7670X_S3_STAN")
+# set_platform("LILYGO_T_SIM7000G_S3_STAN")
+# set_platform("LILYGO_T_SIM7080G_S3_STAN")
+set_platform("LILYGO_T_SIM7670G_S3_STAN")

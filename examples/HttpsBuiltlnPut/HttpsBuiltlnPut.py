@@ -2,7 +2,7 @@
    @file      HttpsBuiltlnPut.py
    @license   MIT
    @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
-   @date      2025-07-30
+   @date      2025-08-13
    @note
    Example is suitable for A7670X/A7608X/SIM7672 series
    Connect https://httpbin.org test put request
@@ -84,7 +84,9 @@ def check_sim():
             time.sleep(3)
 
 def connect_network(apn):
-    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G":
+    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G" \
+       or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G_S3_STAN" \
+        or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7080G_S3_STAN":
         response = send_at_command("AT+CNMP=2")
         print(response)
         response = send_at_command("AT+CNMP=?")
@@ -98,7 +100,7 @@ def connect_network(apn):
         print(response)
         response = send_at_command("AT+CNACT?",wait=3)
         print(response)
-        response = send_at_command("AT+CNACT=1",wait=3)
+        response = send_at_command("AT+CNACT=0,1",wait=3)
         print(response)
         response = send_at_command("AT+CNACT?",wait=3)
         print(response)
@@ -126,7 +128,9 @@ def connect_network(apn):
 
 # Function to perform HTTPS PUT request
 def perform_https_put():
-    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G":
+    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G" \
+       or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G_S3_STAN" \
+        or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7080G_S3_STAN":
         # Prepare the data to send
         put_data = '{"message": "This is put example!"}'
         response = send_at_command("AT+SHDISC")   
@@ -157,8 +161,16 @@ def perform_https_put():
         print(response)
         response = send_at_command('AT+SHAHEAD=\"User-Agent\",\"TinyGSM/LilyGo-A76XX\"',wait=5)
         print(response)
-        response = send_at_command('AT+SHBOD=\"This is put example!\",20',wait=5)
+#         response = send_at_command('AT+SHBOD=\"This is put example!\",20',wait=5)
+#         print(response)
+        response = send_at_command('AT+SHBOD=20,10000',wait=5)
         print(response)
+        uart.write("This is put example!")
+        time.sleep(3)
+        uart.write(b"\r\n")
+        response = send_at_command('')
+        time.sleep(1)
+        
         response = send_at_command('AT+SHREQ=\"/put\",2',wait=5)
         print(response)
         match = re.search(r'(\d+)$', response)

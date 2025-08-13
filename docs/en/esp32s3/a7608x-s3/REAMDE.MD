@@ -145,10 +145,8 @@
 
 * **Upgrade modem firmware**
   1. [T-A76XX Upgrade docs](../../../../docs/update_fw.md) / [Video](https://youtu.be/AZkm-Z7mKn8)
-
 * **Unable to detect SIMCard?**
    1. Need to insert the SIMCard into the board first and then power on to detect the SIM card. If the order is reversed, it will report that the SIMCard cannot be detected.
-
 * **Can't upload any sketch，Please enter the upload mode manually.**
    1. Connect the board via the USB cable
    2. Press and hold the **BOOT** button , While still pressing the **BOOT** button
@@ -156,12 +154,12 @@
    4. Release the **RST** button
    5. Release the **BOOT** button
    6. Upload sketch
-
 * **What the onboard switch does**
   1. When using the internal battery pack, the switch will work normally to power/power down the board. However, if an external battery pack is used and connected to the VBAT pin, the switch will be bypassed, meaning the only way to shut down is to disconnect the battery.
   2. The switch is only for battery power and has no effect when plugged into USB
-
 * **About VBUS Pin**
   1. VBUS Pin and USB-C are on the same line. Only when USB-C is connected, VBUS has voltage
   2. When only the battery is connected, VBUS has no voltage output
   3. If you want to connect an external power supply without connecting USB-C, VBUS Pin is the only voltage input pin. Please note that the maximum input of VBUS Pin is 5V, do not exceed 5V
+* **Why is my board continuously failing to download the program?**
+  1. Please hold down the "BOT" key, then press the "RST" key, and use the command again to burn the firmware.

@@ -2,7 +2,7 @@
  * @file      GPS_BuiltIn.py
  * @license   MIT
  * @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
- * @date      2025-08-06
+ * @date      2025-08-13
  * @note      GPS only supports A7670X/A7608X/SIM7000G/SIM7600 series (excluding A7670G and other versions that do not support positioning).
 '''
 import machine
@@ -29,7 +29,10 @@ try:
 except:
     pass
 
-gps_enable = Pin(utilities.MODEM_GPS_ENABLE_GPIO, Pin.OUT)
+try:
+    gps_enable = Pin(utilities.MODEM_GPS_ENABLE_GPIO, Pin.OUT)
+except:
+    pass
 
 def send_at_command(command, wait=1):
     SerialAT.write(command + "\r\n")
@@ -134,11 +137,16 @@ def modem_setup():
 #     +CGNSSINFO: 2,04,00,21.xxxxx,N,114.xxxxxxxx,E,020924,094145.00,-34.0,1.403,,6.9,6.8,1.0,03
     
     print("Enabling GPS/GNSS/GLONASS")
-    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G":
+    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G" \
+       or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G_S3_STAN" \
+        or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7080G_S3_STAN":
         response = send_at_command("AT+CGPIO=0,48,1,1")
         print(response)
         while True:
-            gps_enable.value(utilities.MODEM_GPS_ENABLE_LEVEL)
+            try:
+                gps_enable.value(utilities.MODEM_GPS_ENABLE_LEVEL)
+            except:
+                pass
             response = send_at_command("AT+CGNSPWR=1")
             print(response)
             if 'OK' in response:
@@ -163,7 +171,9 @@ def modem_setup():
         print(response)
 
 def get_gps_data():
-    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G":
+    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G" \
+       or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G_S3_STAN" \
+        or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7080G_S3_STAN":
         while True:
             print("Requesting current GPS/GNSS/GLONASS location")
             response = send_at_command("AT+CGNSINF",wait=3)

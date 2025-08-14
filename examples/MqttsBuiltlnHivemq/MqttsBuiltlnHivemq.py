@@ -23,10 +23,10 @@ APN = ""  # Replace with your APN (CHN-CT: China Telecom)
 
 # MQTT details
 # The URL of xxxxx.s2.eu.hivemq.cloud can be found in the settings for endpoint in your Hivemq account
-mqtt_broker = "2750dc79d348440bbaa677911ec8d726.s1.eu.hivemq.cloud"
+mqtt_broker = "xxxxx.s2.eu.hivemq.cloud"
 mqtt_port = 8883  # Secure MQTT port (SSL)
-mqtt_broker_username = "ZywOo"
-mqtt_broker_password = "Aa123456789"
+mqtt_broker_username = "xxxxxx"
+mqtt_broker_password = "xxxxxxxxxx"
 mqtt_client_id = "A76XX"  # Unique client ID for MQTT
 mqtt_publish_topic = "GsmMqttTest/publish"  # Topic for publishing messages
 mqtt_subscribe_topic = "GsmMqttTest/subscribe"  # Topic for subscribing to messages

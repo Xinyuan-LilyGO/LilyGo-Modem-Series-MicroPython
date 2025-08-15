@@ -2,7 +2,7 @@
 #   @file      MqttsBuiltlnEMQX.py
 #   @license   MIT
 #   @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
-#   @date      2025-08-04
+#   @date      2025-08-14
 #   @note
 #   Example is suitable for A7670X/A7608X/SIM7670G/SIM7000G/SIM7080G/SIM7600 series
 #   Connect MQTT Broker as https://www.emqx.com/zh/mqtt/public-mqtt5-broker
@@ -96,7 +96,9 @@ def check_sim():
 
 # Function to connect to the network using specified APN
 def connect_network(apn):
-    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G":
+    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G" \
+       or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G_S3_STAN" \
+        or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7080G_S3_STAN":
         response = send_at_command("AT+CNMP=2")
         print(response)
         response = send_at_command("AT+CNMP=?")
@@ -110,7 +112,7 @@ def connect_network(apn):
         print(response)
         response = send_at_command("AT+CNACT?",wait=3)
         print(response)
-        response = send_at_command("AT+CNACT=1",wait=3)
+        response = send_at_command("AT+CNACT=0,1",wait=3)
         print(response)
         response = send_at_command("AT+CNACT?",wait=3)
         print(response)
@@ -139,7 +141,9 @@ def connect_network(apn):
 # MQTT connection function
 def mqtt_connect(client_index, server, port, client_id, keepalive_time=60):
     global __ssl
-    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G":
+    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G" \
+       or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G_S3_STAN" \
+        or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7080G_S3_STAN":
         response = send_at_command("AT+CFSTERM") 
         print(response)
         response = send_at_command("AT+CSSLCFG=convert,2,rootCA.pem")
@@ -185,7 +189,9 @@ def mqtt_connect(client_index, server, port, client_id, keepalive_time=60):
 
 # Function to check if already connected to MQTT
 def mqtt_connected():
-    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G":
+    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G" \
+       or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G_S3_STAN" \
+        or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7080G_S3_STAN":
         response_con = send_at_command("AT+SMSTATE?")  # Check MQTT connection status
         print(response_con)
         if "OK" in response_con:
@@ -205,7 +211,9 @@ def mqtt_set_certificate(ca_file, client_cert_file=None, client_cert_key=None):
 # Full MQTT connection process with SSL
 def mqtt_connecting(client_index, server, port, client_id, ssl, keepalive_time=60):
     global __ssl, cert_pem
-    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G":
+    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G" \
+       or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G_S3_STAN" \
+        or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7080G_S3_STAN":
         __ssl = ssl
         auth_method = 0  # No authentication (0 = no authentication, 1 = server authentication, 2 = server + client authentication)
         # Start the MQTT service
@@ -232,6 +240,10 @@ def mqtt_connecting(client_index, server, port, client_id, ssl, keepalive_time=6
         response = send_at_command('AT+SMCONN',wait=3)
         time.sleep(3)
         print(response)
+        while True:
+            response = send_at_command('AT+SMCONN')
+            if 'OK' in response:
+                break
         if ret:
             print("Successfully connected.")
         else:
@@ -339,7 +351,9 @@ def mqtt_connecting(client_index, server, port, client_id, ssl, keepalive_time=6
 
 # Function to subscribe to an MQTT topic
 def mqtt_subscribe(client_index, mqtt_publish_topic, qos=0, dup=0):
-    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G":
+    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G" \
+       or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G_S3_STAN" \
+        or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7080G_S3_STAN":
         response = send_at_command(f'AT+SMSUB=\"{mqtt_subscribe_topic}\",0',wait=5)  # Authentication mode
         print(response)
         if "OK" not in response:
@@ -361,7 +375,9 @@ def mqtt_subscribe(client_index, mqtt_publish_topic, qos=0, dup=0):
 # Function to publish a message to an MQTT topic
 def mqtt_publish(client_index, topic, message):
     
-    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G":
+    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G" \
+       or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G_S3_STAN" \
+        or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7080G_S3_STAN":
         response = send_at_command(f'AT+SMPUB=\"{mqtt_publish_topic}\",10,0,1',wait=3)  # Wait for response to the topic
         print(response)
         uart.write(message.encode())  # Send topic as bytes

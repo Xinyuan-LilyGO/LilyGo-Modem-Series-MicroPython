@@ -2,7 +2,7 @@
 #   @file      MqttsBuiltlnAuth.py
 #   @license   MIT
 #   @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
-#   @date      2025-08-09
+#   @date      2025-08-14
 #   @note
 #   Example is suitable for A7670X/A7608X/SIM7670G/SIM7000G/SIM7080G/SIM7600 series
 #   Connect MQTT Broker as https://test.mosquitto.org/
@@ -91,7 +91,9 @@ def check_sim():
             time.sleep(3)
 
 def connect_network(apn):
-    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G":
+    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G" \
+       or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G_S3_STAN" \
+        or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7080G_S3_STAN":
         response = send_at_command("AT+CNMP=2")
         print(response)
         response = send_at_command("AT+CNMP=?")
@@ -132,7 +134,9 @@ def connect_network(apn):
 
 # MQTT connection function
 def mqtt_connect(client_index, server, port, client_id, username=None, password=None, keepalive_time=60):
-    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G":
+    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G" \
+       or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G_S3_STAN" \
+        or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7080G_S3_STAN":
         response = send_at_command("AT+SMSSL=0",wait=5) 
         print(response)
         response = send_at_command('AT+SMCONF="KEEPTIME",60',wait=5)
@@ -180,7 +184,9 @@ def mqtt_connect(client_index, server, port, client_id, username=None, password=
         return True
 
 def mqtt_connected():
-    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G":
+    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G" \
+       or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G_S3_STAN" \
+        or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7080G_S3_STAN":
         response_con = send_at_command("AT+SMSTATE?")  # Check MQTT connection status
         print(response_con)
         if "OK" in response_con:
@@ -191,14 +197,15 @@ def mqtt_connected():
             return True
 
 def mqtt_connecting(client_index, server, port, client_id, username=None, password=None, keepalive_time=60):
-   if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G":
+   if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G" \
+       or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G_S3_STAN" \
+        or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7080G_S3_STAN":
         response = send_at_command("AT+SMDISC",wait=3)
         print(response)
         print(f"Connecting to: {mqtt_broker}")
         ret = mqtt_connect(client_index, mqtt_broker, mqtt_port, mqtt_client_id, mqtt_username, mqtt_password)
         response = send_at_command("AT+SMCONN",wait=3)
         print(response)
-        print("***************")
         if ret:
             print("successfully.")
         else:
@@ -234,7 +241,9 @@ def mqtt_connecting(client_index, server, port, client_id, username=None, passwo
         return True
 
 def mqtt_subscribe(client_index, mqtt_publish_topic, qos=0, dup=0):
-    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G":
+    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G" \
+       or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G_S3_STAN" \
+        or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7080G_S3_STAN":
         response = send_at_command(f'AT+SMSUB=\"{mqtt_subscribe_topic}\",0',wait=5)  # Authentication mode
         print(response)
         if "OK" not in response:
@@ -256,7 +265,9 @@ def mqtt_subscribe(client_index, mqtt_publish_topic, qos=0, dup=0):
 
 # MQTT Publish function
 def mqtt_publish(client_index, topic, message):
-    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G":
+    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G" \
+       or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G_S3_STAN" \
+        or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7080G_S3_STAN":
         response = send_at_command(f'AT+SMPUB=\"{mqtt_publish_topic}\",10,0,1',wait=3)  # Wait for response to the topic
         print(response)
         uart.write(message.encode())  # Send topic as bytes

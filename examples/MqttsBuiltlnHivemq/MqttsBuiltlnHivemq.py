@@ -26,7 +26,7 @@ APN = ""  # Replace with your APN (CHN-CT: China Telecom)
 mqtt_broker = "xxxxxxx.s1.eu.hivemq.cloud"
 mqtt_port = 8883  # Secure MQTT port (SSL)
 mqtt_broker_username = "xxxxx"
-mqtt_broker_password = "xxxxxxxxxxx"
+mqtt_broker_password = "xxxxxxxxxx"
 mqtt_client_id = "A76XX"  # Unique client ID for MQTT
 mqtt_publish_topic = "GsmMqttTest/publish"  # Topic for publishing messages
 mqtt_subscribe_topic = "GsmMqttTest/subscribe"  # Topic for subscribing to messages
@@ -151,11 +151,11 @@ def mqtt_connect(client_index, server, port, client_id, username=None, password=
     if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G" \
        or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G_S3_STAN" \
         or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7080G_S3_STAN":
-        response = send_at_command("AT+CFSTERM") 
+        response = send_at_command("AT+CFSTERM",wait=5) 
         print(response)
-        response = send_at_command("AT+CSSLCFG=convert,2,rootCA.pem")
+        response = send_at_command('AT+CSSLCFG=convert,2,rootCA.pem',wait=5)
         print(response)
-        response = send_at_command('AT+CSSLCFG="sslversion",0,3')
+        response = send_at_command('AT+CSSLCFG="sslversion",0,3',wait=5)
         print(response)
         response = send_at_command(f'AT+CSSLCFG="sni",0,"{mqtt_broker}"') 
         print(response)
@@ -208,6 +208,12 @@ def mqtt_connected():
     if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G" \
        or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G_S3_STAN" \
         or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7080G_S3_STAN":
+        response = send_at_command('AT+SMCONN')
+        print(response)
+        while True:
+            response = send_at_command('AT+SMCONN')
+            if 'OK' in response:
+                break
         response = send_at_command('AT+SMSTATE?') 
         print(response)
         if 'OK' in response:
@@ -237,20 +243,16 @@ def mqtt_connecting(client_index, server, port, client_id, ssl, sni, keepalive_t
         print(f"Connecting to: {mqtt_broker}")
         response = send_at_command("AT+CFSINIT",wait=5)
         print(response)
-        response = send_at_command('AT+CFSWFILE=3,"rootCA.pem",0,1970,10000',wait=3)
+        
+        response = send_at_command('AT+CFSWFILE=3,"rootCA.pem",0,1970,10000',wait=20)
         print(response)
-        uart.write(cert_pem)  # Send CA certificate to modem
-        time.sleep(3)
+        uart.write(cert_pem.encode('utf-8'))  # Send CA certificate to modem
         uart.write(b"\r\n")  # End the certificate with a newline
+        time.sleep(10)
         response = send_at_command("")  # Wait for the response
         print(response)
+        
         ret = mqtt_connect(client_index, mqtt_broker, mqtt_port, mqtt_client_id, mqtt_broker_username, mqtt_broker_password)  # Connect to MQTT
-        response = send_at_command('AT+SMCONN')
-        print(response)
-        while True:
-            response = send_at_command('AT+SMCONN')
-            if 'OK' in response:
-                break
         if ret:
             print("Successfully connected.")
         else:

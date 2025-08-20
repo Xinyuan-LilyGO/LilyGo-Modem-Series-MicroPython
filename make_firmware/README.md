@@ -114,13 +114,13 @@ Enter the password you just set:
 1. Execute the following instructions in sequence in the command line mode of the linux subsystem:
 
    ```
-   git clone https://gitee.com/EspressifSystems/esp-gitee-tools.git
+   git clone https://github.com/Xinyuan-LilyGO/esp-gitee-tools.git
    ```
 
    ![21](./images/21.png)
 
    ```
-   git clone https://gitee.com/EspressifSystems/esp-idf.git
+   git clone https://github.com/Xinyuan-LilyGO/esp-idf.git
    ```
 
    ![23](./images/23.png)

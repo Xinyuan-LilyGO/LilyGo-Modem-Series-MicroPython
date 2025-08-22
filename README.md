@@ -26,3 +26,6 @@
 ## ESP32S3 Version Standard Series Get Started
 
 - 🔧 **[T-A7670X-S3-Standard Quick Start](./docs/en/esp32s3/a7670x-s3-standard/REAMDE.MD)**
+- 🔧 **[T-SIM7670G-S3-Standard Quick Start](./docs/en/esp32s3/sim7670g-s3-standard/REAMDE.MD)**
+- 🔧 **[T-SIM7000G-S3-Standard Quick Start](./docs/en/esp32s3/sim7000g-s3-standard/REAMDE.MD)**
+- 🔧 **[T-SIM7080G-S3-Standard Quick Start](./docs/en/esp32s3/sim7080-s3-standard/REAMDE.MD)**

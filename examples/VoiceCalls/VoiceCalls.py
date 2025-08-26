@@ -18,7 +18,7 @@ import utilities
 # Initialize the serial interface for the modem
 uart = machine.UART(1, baudrate=utilities.MODEM_BAUDRATE, tx=utilities.MODEM_TX_PIN, rx=utilities.MODEM_RX_PIN)
 APN = ""  # Replace with your APN (CHN-CT: China Telecom)
-number = "+8618898832480"  #Change the number you want to dial
+number = "+86xxxxxxxxx"  #Change the number you want to dial
 
 def send_at_command(command, wait=1):
     uart.write(command + "\r\n")

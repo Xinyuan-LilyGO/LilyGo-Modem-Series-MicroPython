@@ -2,7 +2,7 @@
  * @file      Voice_Call.py
  * @license   MIT
  * @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
- * @date      2025-07-21
+ * @date      2025-08-26
  * @note      Not support T-SIM7670G,SIM7000G
  * * Voice calls require external welding of the condenser microphone and speaker.
  * * Generally, the board silk screen is marked SPK. The speaker needs to be welded,
@@ -18,7 +18,7 @@ import utilities
 # Initialize the serial interface for the modem
 uart = machine.UART(1, baudrate=utilities.MODEM_BAUDRATE, tx=utilities.MODEM_TX_PIN, rx=utilities.MODEM_RX_PIN)
 APN = ""  # Replace with your APN (CHN-CT: China Telecom)
-number = "+8618898832480"  #Change the number you want to dial
+number = "+86xxxxxxxxxxx"  #Change the number you want to dial
 
 def send_at_command(command, wait=1):
     uart.write(command + "\r\n")
@@ -33,19 +33,25 @@ def send_at_command(command, wait=1):
     return ""
 
 def modem_power_on():
-    machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
-    time.sleep(0.1)
-    machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(1)
-    time.sleep(1)
-    machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
+    try:
+        machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
+        time.sleep(0.1)
+        machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(1)
+        time.sleep(1)
+        machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
+    except:
+        pass
 
 def modem_reset():
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
-    time.sleep(0.1)
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(utilities.MODEM_RESET_LEVEL)
-    time.sleep(2.6)
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
-
+    try:
+        machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
+        time.sleep(0.1)
+        machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(utilities.MODEM_RESET_LEVEL)
+        time.sleep(2.6)
+        machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
+    except:
+        pass
+    
 def check_modem():
     print("Starting modem...")
     while True:
@@ -62,7 +68,10 @@ def callNumber(number):
     
 def main():
     # Turn on DC boost to power on the modem
-    machine.Pin(utilities.BOARD_POWERON_PIN, machine.Pin.OUT).value(1)
+    try:
+        machine.Pin(utilities.BOARD_POWERON_PIN, machine.Pin.OUT).value(1)
+    except:
+        pass
     # Set modem reset pin ,reset modem
     modem_reset()
     # Turn on modem

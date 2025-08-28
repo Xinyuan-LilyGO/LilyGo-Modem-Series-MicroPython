@@ -2,7 +2,7 @@
  * @file      GPS_BuiltIn.py
  * @license   MIT
  * @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
- * @date      2025-08-13
+ * @date      2025-08-22
  * @note      GPS only supports A7670X/A7608X/SIM7000G/SIM7600 series (excluding A7670G and other versions that do not support positioning).
 '''
 import machine
@@ -153,6 +153,21 @@ def modem_setup():
                 break
             print(".", end="")
         print("\nGPS Enabled")
+    elif utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7670G_S3_STAN":
+        response = send_at_command("AT+CGDRT=1,1")
+        print(response)
+        response = send_at_command("AT+CGSETV=1,1")
+        print(response)
+        while True:   
+            response = send_at_command("AT+CGNSSPWR=1")
+            print(response)
+            if response:
+                break
+            print(".", end="")
+        print("\nGPS Enabled")
+        # Set GPS Baud to 115200
+        response = send_at_command("AT+CGNSSIPR=115200")
+        print(response)
     else:
         response = send_at_command("AT+CVAUXS=1")
         print(response)
@@ -195,7 +210,7 @@ def get_gps_data():
                     accuracy2 = float(values[11])  # Accuracy
                     
                     date_str = values[2]  # Date Time
-                    year2 = int(date_str[:4]) # Year
+                    year2 = int(date_str[:4])+2000 # Year
                     month2 = int(date_str[4:6])  # Month
                     day2 = int(date_str[6:8])  # Day
                     hour2 = int(date_str[8:10])  # Hour
@@ -248,7 +263,7 @@ def get_gps_data():
                     accuracy2 = float(values[16])  # Accuracy
                     date_str = values[9]  # Date
                     time_str = values[10]  # Time
-                    year2 = int(date_str[4:6])  # Year
+                    year2 = int(date_str[4:6])+2000  # Year
                     month2 = int(date_str[2:4])  # Month
                     day2 = int(date_str[:2])  # Day
                     hour2 = int(time_str[:2])  # Hour

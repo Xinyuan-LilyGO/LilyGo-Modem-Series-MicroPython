@@ -2,7 +2,7 @@
  * @file      SendSMS.py
  * @license   MIT
  * @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
- * @date      2025-07-18
+ * @date      2025-08-26
  * @note      SIM7670G - SIM7670G-MNGV 2374B04 version supports SMS function,
  *            but it requires the operator base station to support SMS Over SGS service to send, otherwise it will be invalid
  *            `A7670E-LNXY-UBL` this version does not support voice and SMS functions.
@@ -32,30 +32,48 @@ def send_at_command(command, wait=1):
     return ""
 
 def connect_network(apn):
-    send_at_command(f"AT+CGDCONT=1,\"IP\",\"{apn}\"")  # Set the PDP context
-    send_at_command("AT+CGATT=1")  # Attach to the GPRS network
-    while True:
-        response = send_at_command("AT+NETOPEN",wait=3)  # Open the network connection
-        if "OK" in response or "+NETOPEN: 0" in response:  # Check for successful connection
+    if utilities.CURRENT_PLATFORM == "LILYGO_T_A7670X_S3_STAN":
+        response = send_at_command("AT+CNMP=2")
+        print(response)
+        response = send_at_command("AT+CNMP=?")
+        print(response)
+        print("Current network mode : AUTO")
+        print("Wait for the modem to register with the network.")
+        response = send_at_command("AT+CEREG?")
+        print(response)
+        if "OK" in response:
             print("Online registration successful")
-            break
-        else:
-            print("Network registration was rejected, please check if the APN is correct")
+    else:
+        send_at_command(f"AT+CGDCONT=1,\"IP\",\"{apn}\"")  # Set the PDP context
+        send_at_command("AT+CGATT=1")  # Attach to the GPRS network
+        while True:
+            response = send_at_command("AT+NETOPEN",wait=3)  # Open the network connection
+            if "OK" in response or "+NETOPEN: 0" in response:  # Check for successful connection
+                print("Online registration successful")
+                break
+            else:
+                print("Network registration was rejected, please check if the APN is correct")
 
 def modem_power_on():
-    machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
-    time.sleep(0.1)
-    machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(1)
-    time.sleep(1)
-    machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
-
+    try:
+        machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
+        time.sleep(0.1)
+        machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(1)
+        time.sleep(1)
+        machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
+    except:
+        passs
+        
 def modem_reset():
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
-    time.sleep(0.1)
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(utilities.MODEM_RESET_LEVEL)
-    time.sleep(2.6)
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
-
+    try:
+        machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
+        time.sleep(0.1)
+        machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(utilities.MODEM_RESET_LEVEL)
+        time.sleep(2.6)
+        machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
+    except:
+        pass
+        
 def check_modem():
     print("Starting modem...")
     while True:
@@ -86,7 +104,10 @@ def sendSMS(SMS_TARGET):
     
 def main():
     # Turn on DC boost to power on the modem
-    machine.Pin(utilities.BOARD_POWERON_PIN, machine.Pin.OUT).value(1)
+    try:
+        machine.Pin(utilities.BOARD_POWERON_PIN, machine.Pin.OUT).value(1)
+    except:
+        pass
     # Set modem reset pin ,reset modem
     modem_reset()
     # Turn on modem

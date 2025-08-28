@@ -2,7 +2,7 @@
 #   @file      MqttsBuiltlnEMQX.py
 #   @license   MIT
 #   @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
-#   @date      2025-08-14
+#   @date      2025-08-27
 #   @note
 #   Example is suitable for A7670X/A7608X/SIM7670G/SIM7000G/SIM7080G/SIM7600 series
 #   Connect MQTT Broker as https://www.emqx.com/zh/mqtt/public-mqtt5-broker
@@ -120,6 +120,24 @@ def connect_network(apn):
         if match:
             ip_address = match.group(1)
             print("Network IP:", ip_address)
+    elif utilities.CURRENT_PLATFORM == "LILYGO_T_A7670X_S3_STAN":
+        response = send_at_command("AT+CNMP=2")
+        print(response)
+        response = send_at_command("AT+CNMP=?")
+        print(response)
+        print("Current network mode : AUTO")
+        print("Wait for the modem to register with the network.")
+        response = send_at_command("AT+CEREG?")
+        print(response)
+        if "OK" in response:
+            print("Online registration successful")
+        response = send_at_command("AT+CPSI?")
+        # Get the IP address
+        ip_response = send_at_command("AT+IPADDR")
+        if ip_response:
+            print("Network IP:", ip_response)
+        else:
+            print("Failed to retrieve IP address.")
     else:
         send_at_command(f"AT+CGDCONT=1,\"IP\",\"{apn}\"")
         send_at_command("AT+CGATT=1")  # Attach to the GPRS

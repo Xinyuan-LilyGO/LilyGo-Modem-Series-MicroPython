@@ -2,7 +2,7 @@
  * @file      ReadSMS.py
  * @license   MIT
  * @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
- * @date      2025-07-18
+ * @date      2025-08-26
  * @note      SIM7670G does not support SMS and voice functions
  *            `A7670E-LNXY-UBL` this version does not support voice and SMS functions.
  * ! Only read data, not decode data. For detailed SMS operation, please refer to A76XX_Series_AT_Command_Manual
@@ -43,19 +43,25 @@ def readSMS_send_at(command, timeout=10000):
     return data
 
 def modem_power_on():
-    machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
-    time.sleep(0.1)
-    machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(1)
-    time.sleep(1)
-    machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
-
+    try:
+        machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
+        time.sleep(0.1)
+        machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(1)
+        time.sleep(1)
+        machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
+    except:
+        pass
+    
 def modem_reset():
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
-    time.sleep(0.1)
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(utilities.MODEM_RESET_LEVEL)
-    time.sleep(2.6)
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
-
+    try:
+        machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
+        time.sleep(0.1)
+        machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(utilities.MODEM_RESET_LEVEL)
+        time.sleep(2.6)
+        machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
+    except:
+        pass
+    
 def check_modem():
     print("Starting modem...")
     while True:
@@ -142,7 +148,10 @@ def readSMS():
     
 def main():
     # Turn on DC boost to power on the modem
-    machine.Pin(utilities.BOARD_POWERON_PIN, machine.Pin.OUT).value(1)
+    try:
+        machine.Pin(utilities.BOARD_POWERON_PIN, machine.Pin.OUT).value(1)
+    except:
+        pass
     # Set modem reset pin ,reset modem
     modem_reset()
     # Turn on modem

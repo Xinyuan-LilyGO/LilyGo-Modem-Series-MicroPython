@@ -2,7 +2,7 @@
  * @file      PowerMonitoring.py
  * @license   MIT
  * @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
- * @date      2025-07-10
+ * @date      2025-08-26
  * @note      Reading the battery voltage information is only applicable to the V1.2 version.
  *            T-A7670x :  The V1.1 version does not have a battery voltage divider.
  *                         If V1.1 needs to be read, then you need to add a 100K 1% voltage divider resistor between the battery and GND
@@ -50,19 +50,25 @@ def send_at_command(command, wait=1):
     return ""
 
 def modem_power_on():
-    machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
-    time.sleep(0.1)
-    machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(1)
-    time.sleep(1)
-    machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
-
+    try:
+        machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
+        time.sleep(0.1)
+        machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(1)
+        time.sleep(1)
+        machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
+    except:
+        pass
+    
 def modem_reset():
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
-    time.sleep(0.1)
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(utilities.MODEM_RESET_LEVEL)
-    time.sleep(2.6)
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
-
+    try:
+        machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
+        time.sleep(0.1)
+        machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(utilities.MODEM_RESET_LEVEL)
+        time.sleep(2.6)
+        machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
+    except:
+        pass
+    
 def check_modem():
     print("Starting modem...")
     while True:
@@ -97,7 +103,10 @@ def connect_network(apn):
             print("Network registration was rejected, please check if the APN is correct")
 
 def main():
-    machine.Pin(utilities.BOARD_POWERON_PIN, machine.Pin.OUT).value(1)
+    try:
+        machine.Pin(utilities.BOARD_POWERON_PIN, machine.Pin.OUT).value(1)
+    except:
+        pass 
     battery_voltage_mv = get_battery_voltage()
     if battery_voltage_mv < LOW_VOLTAGE_LEVEL:
         deepsleep(SLEEP_MINUTE * 60 * 1000)
@@ -124,7 +133,6 @@ def main():
                 deepsleep(SLEEP_MINUTE * 60 * 1000)
             elif battery_voltage_mv < WARN_VOLTAGE_LEVEL:
                 print("Battery voltage reaches the warning voltage")
-        sleep(1000)
 
 if __name__ == "__main__":
     main()

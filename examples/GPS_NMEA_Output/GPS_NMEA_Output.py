@@ -2,7 +2,7 @@
  * @file      GPS_NMEA_Output.py
  * @license   MIT
  * @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
- * @date      2025-08-06
+ * @date      2025-08-28
  * @note      GPS only supports A7670X/A7608X/SIM7000G/SIM7600 series (excluding A7670G and other versions that do not support positioning).
 '''
 import machine
@@ -29,7 +29,10 @@ try:
 except:
     pass
 
-gps_enable = Pin(utilities.MODEM_GPS_ENABLE_GPIO, Pin.OUT)
+try:
+    gps_enable = Pin(utilities.MODEM_GPS_ENABLE_GPIO, Pin.OUT)
+except:
+    pass
 
 def send_at_command(command, wait=1):
     SerialAT.write(command + "\r\n")
@@ -120,7 +123,10 @@ def modem_setup():
         response = send_at_command("AT+CGPIO=0,48,1,1")
         print(response)
         while True:
-            gps_enable.value(utilities.MODEM_GPS_ENABLE_LEVEL)
+            try:
+                gps_enable.value(utilities.MODEM_GPS_ENABLE_LEVEL)
+            except:
+                pass
             response = send_at_command("AT+CGNSPWR=1")
             print(response)
             if 'OK' in response:
@@ -147,7 +153,10 @@ def modem_setup():
         response = send_at_command("AT+CGPSHOT")
         print(response)
         while True:
-            gps_enable.value(utilities.MODEM_GPS_ENABLE_LEVEL)
+            try:
+                gps_enable.value(utilities.MODEM_GPS_ENABLE_LEVEL)
+            except:
+                pass
             response = send_at_command("AT+CGNSSPWR=1")
             print(response)
             if response:

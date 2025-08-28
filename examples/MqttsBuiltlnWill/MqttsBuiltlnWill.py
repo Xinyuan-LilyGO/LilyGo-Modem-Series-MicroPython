@@ -2,7 +2,7 @@
 #   @file      MqttsBuiltlnWill.py
 #   @license   MIT
 #   @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
-#   @date      2025-07-09
+#   @date      2025-08-27
 #   @note
 #    Example is suitable for A7670X/A7608X/SIM7670G/SIM7600 series
 #    TODO: SIM7000G To be fixed
@@ -51,19 +51,25 @@ def send_at_command(command, wait=1):
     return ""
 
 def modem_power_on():
-    machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
-    time.sleep(0.1)
-    machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(1)
-    time.sleep(0.1)
-    machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
-
+    try:
+        machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
+        time.sleep(0.1)
+        machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(1)
+        time.sleep(0.1)
+        machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
+    except:
+        pass
+    
 def modem_reset():
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
-    time.sleep(0.1)
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(utilities.MODEM_RESET_LEVEL)
-    time.sleep(2.6)
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
-
+    try:
+        machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
+        time.sleep(0.1)
+        machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(utilities.MODEM_RESET_LEVEL)
+        time.sleep(2.6)
+        machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
+    except:
+        pass
+    
 def check_modem():
     print("Starting modem...")
     while True:

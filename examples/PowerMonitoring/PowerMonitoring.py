@@ -95,12 +95,14 @@ def connect_network(apn):
     send_at_command(f"AT+CGDCONT=1,\"IP\",\"{apn}\"")
     send_at_command("AT+CGATT=1")  # Attach to the GPRS
     while True:
+        send_at_command("AT+NETCLOSE", wait=3)
         response = send_at_command("AT+NETOPEN",wait=3)
         if "OK" in response or "+NETOPEN: 0" in response:
             print("Online registration successful")
             break
         else:
             print("Network registration was rejected, please check if the APN is correct")
+
 
 def main():
     try:

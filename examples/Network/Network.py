@@ -2,7 +2,7 @@
 #   @file      Network.py
 #   @license   MIT
 #   @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
-#   @date      2025-07-28
+#   @date      2025-08-29
 #   Example is suitable for A7670X/A7608X/SIM7670G/SIM7000G/SIM7600 series
 '''
 import time
@@ -82,7 +82,9 @@ def check_sim():
             time.sleep(3)
 
 def connect_network(apn):
-    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G" or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G_S3_STAN" or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7080G_S3_STAN":
+    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G" \
+       or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G_S3_STAN" \
+        or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7080G_S3_STAN":
         response = send_at_command("AT+CNMP=2")
         print(response)
         response = send_at_command("AT+CNMP=?")
@@ -104,17 +106,37 @@ def connect_network(apn):
         if match:
             ip_address = match.group(1)
             print("Network IP:", ip_address)
-
+    elif utilities.CURRENT_PLATFORM == "LILYGO_T_A7670X_S3_STAN":
+        response = send_at_command("AT+CNMP=2")
+        print(response)
+        response = send_at_command("AT+CNMP=?")
+        print(response)
+        print("Current network mode : AUTO")
+        print("Wait for the modem to register with the network.")
+        response = send_at_command("AT+CEREG?")
+        print(response)
+        if "OK" in response:
+            print("Online registration successful")
+        response = send_at_command("AT+CPSI?")
+        # Get the IP address
+        ip_response = send_at_command("AT+IPADDR")
+        if ip_response:
+            print("Network IP:", ip_response)
+        else:
+            print("Failed to retrieve IP address.")
+        
     else:
         send_at_command(f"AT+CGDCONT=1,\"IP\",\"{apn}\"")
         send_at_command("AT+CGATT=1")  # Attach to the GPRS
         while True:
+            send_at_command("AT+NETCLOSE", wait=3)
             response = send_at_command("AT+NETOPEN",wait=3)
             if "OK" in response or "+NETOPEN: 0" in response:
                 print("Online registration successful")
                 break
             else:
                 print("Network registration was rejected, please check if the APN is correct")
+
         # Get the IP address
         ip_response = send_at_command("AT+IPADDR")
         if ip_response:
@@ -138,7 +160,9 @@ def main():
     wait_time = 10000
     url= "www.baidu.com"
     for i in range(20):
-        if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G" or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G_S3_STAN" or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7080G_S3_STAN":
+        if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G" \
+           or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G_S3_STAN" \
+            or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7080G_S3_STAN":
             command = f'AT+SNPING4="{url}",{dest_addr_type},{data_packet_size},{interval_time}'
             response = send_at_command(command,wait=3)
             print(response)

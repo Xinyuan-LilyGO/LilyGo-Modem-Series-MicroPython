@@ -2,7 +2,7 @@
  * @file      TCPClientMultiple.py
  * @license   MIT
  * @copyright Copyright (c) 2025  ShenZhen XinYuan Electronic Technology Co., Ltd
- * @date      2025-07-08
+ * @date      2025-08-29
  * @note      The example demonstrates multiple socket connections. The problem comes from https://github.com/Xinyuan-LilyGO/LilyGO-T-A76XX/issues/223#issuecomment-2639376887
 '''
 import time
@@ -46,19 +46,25 @@ time.sleep(1)
 
 # Modem power on and reset sequence
 def modem_power_on():
-    machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
-    time.sleep(0.1)
-    machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(1)
-    time.sleep(0.1)
-    machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
-
+    try:
+        machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
+        time.sleep(0.1)
+        machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(1)
+        time.sleep(0.1)
+        machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
+    except:
+        pass
+    
 def modem_reset():
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
-    time.sleep(0.1)
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(utilities.MODEM_RESET_LEVEL)
-    time.sleep(2.6)
-    machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
-
+    try:
+        machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
+        time.sleep(0.1)
+        machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(utilities.MODEM_RESET_LEVEL)
+        time.sleep(2.6)
+        machine.Pin(utilities.MODEM_RESET_PIN, machine.Pin.OUT).value(not utilities.MODEM_RESET_LEVEL)
+    except:
+        pass
+    
 def send_at_command(command, wait=1):
     uart.write(command + "\r\n")
     time.sleep(wait)
@@ -96,13 +102,12 @@ def connect_network(apn):
     print(f"Inquiring UE system information:{response}")
     send_at_command(f"AT+CGDCONT=1,\"IP\",\"{apn}\"")
     send_at_command("AT+CGATT=1")  # Attach to the GPRS
-    while True:
-        response = send_at_command("AT+NETOPEN",wait=3)
-        if "OK" in response or "+NETOPEN: 0" in response:
-            print("Online registration successful")
-            break
-        else:
-            print("Network registration was rejected, please check if the APN is correct")
+    send_at_command("AT+NETOPEN",wait=3)
+    response = send_at_command("AT+CEREG?")
+    if "OK" in response:
+        print("Online registration successful")
+    else:
+        print("Network registration was rejected, please check if the APN is correct")
 
     # Get the IP address
     ip_response = send_at_command("AT+IPADDR")

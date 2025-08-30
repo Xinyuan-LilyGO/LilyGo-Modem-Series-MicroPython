@@ -92,8 +92,9 @@ def connect_network(apn):
     send_at_command(f"AT+CGDCONT=1,\"IP\",\"{apn}\"")  # Set the PDP context
     send_at_command("AT+CGATT=1")  # Attach to the GPRS network
     while True:
-        response = send_at_command("AT+NETOPEN", wait=3)  # Open the network connection
-        if "OK" in response or "+NETOPEN: 0" in response:  # Check for successful connection
+        send_at_command("AT+NETCLOSE", wait=3)
+        response = send_at_command("AT+NETOPEN",wait=3)
+        if "OK" in response or "+NETOPEN: 0" in response:
             print("Online registration successful")
             break
         else:

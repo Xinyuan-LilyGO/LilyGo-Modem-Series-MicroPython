@@ -2,7 +2,7 @@
 #   @file      MqttsBuiltlnAuth.py
 #   @license   MIT
 #   @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
-#   @date      2025-08-14
+#   @date      2025-08-30
 #   @note
 #   Example is suitable for A7670X/A7608X/SIM7670G/SIM7000G/SIM7080G/SIM7600 series
 #   Connect MQTT Broker as https://test.mosquitto.org/
@@ -119,6 +119,7 @@ def connect_network(apn):
         send_at_command(f"AT+CGDCONT=1,\"IP\",\"{apn}\"")
         send_at_command("AT+CGATT=1")  # Attach to the GPRS
         while True:
+            send_at_command("AT+NETCLOSE", wait=3)
             response = send_at_command("AT+NETOPEN",wait=3)
             if "OK" in response or "+NETOPEN: 0" in response:
                 print("Online registration successful")
@@ -267,7 +268,7 @@ def mqtt_subscribe(client_index, mqtt_publish_topic, qos=0, dup=0):
 def mqtt_publish(client_index, topic, message):
     if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G" \
        or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7000G_S3_STAN" \
-        or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7080G_S3_STAN":
+        or utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7080G_S3_STAN" :
         response = send_at_command(f'AT+SMPUB=\"{mqtt_publish_topic}\",10,0,1',wait=3)  # Wait for response to the topic
         print(response)
         uart.write(message.encode())  # Send topic as bytes

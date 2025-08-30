@@ -2,7 +2,7 @@
 #   @file      MqttsBuiltlnNoSSL.py
 #   @license   MIT
 #   @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
-#   @date      2025-08-14
+#   @date      2025-08-30
 #   @note
 #    Example is suitable for A7670X/A7608X/SIM7670G/SIM7600 series
 #    TODO: SIM7000G To be fixed
@@ -119,6 +119,7 @@ def connect_network(apn):
         send_at_command(f"AT+CGDCONT=1,\"IP\",\"{apn}\"")
         send_at_command("AT+CGATT=1")  # Attach to the GPRS
         while True:
+            send_at_command("AT+NETCLOSE", wait=3)
             response = send_at_command("AT+NETOPEN",wait=3)
             if "OK" in response or "+NETOPEN: 0" in response:
                 print("Online registration successful")

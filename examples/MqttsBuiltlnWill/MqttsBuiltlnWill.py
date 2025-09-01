@@ -2,7 +2,7 @@
 #   @file      MqttsBuiltlnWill.py
 #   @license   MIT
 #   @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
-#   @date      2025-08-27
+#   @date      2025-09-01
 #   @note
 #    Example is suitable for A7670X/A7608X/SIM7670G/SIM7600 series
 #    TODO: SIM7000G To be fixed
@@ -20,10 +20,10 @@ from umqtt.robust import MQTTClient
 # APNs from other operators are welcome to submit PRs for filling.
 # Network and MQTT settings
 APN = ""  # Replace with your APN (CHN-CT: China Telecom)
-mqtt_broker = "Your mqtt server address"  # MQTT Broker address
+mqtt_broker = "broker.emqx.io"  # MQTT Broker address
 mqtt_port = 1883  # Non-secure MQTT port
-mqtt_broker_username = "broker_username"
-mqtt_broker_password = "broker_password"
+mqtt_broker_username = "user_name"
+mqtt_broker_password = "user_password"
 mqtt_client_id = "client_id"
 
 # Will topic , Change to the channel you want to post to
@@ -51,6 +51,11 @@ def send_at_command(command, wait=1):
     return ""
 
 def modem_power_on():
+    try:
+        machine.Pin(utilities.MODEM_DTR_PIN, machine.Pin.OUT).value(0)
+    except:
+        pass
+    
     try:
         machine.Pin(utilities.BOARD_PWRKEY_PIN, machine.Pin.OUT).value(0)
         time.sleep(0.1)

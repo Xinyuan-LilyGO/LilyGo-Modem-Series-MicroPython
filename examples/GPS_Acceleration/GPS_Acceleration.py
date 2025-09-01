@@ -2,7 +2,7 @@
  * @file      GPS_Acceleration.py
  * @license   MIT
  * @copyright Copyright (c) 2025  Shenzhen Xin Yuan Electronic Technology Co., Ltd
- * @date      2025-07-22
+ * @date      2025-09-01
  * @note
  *            GPS acceleration only supports A7670X/A7608X (excluding A7670G and other versions that do not support positioning).
 '''
@@ -20,10 +20,25 @@ APN = ""  # Replace with your APN (CHN-CT: China Telecom)
 SerialAT = UART(1, baudrate=utilities.MODEM_BAUDRATE, tx=utilities.MODEM_TX_PIN, rx=utilities.MODEM_RX_PIN)
 
 # Initialize pins
-pwrkey = Pin(utilities.BOARD_PWRKEY_PIN, Pin.OUT)
-poweron = Pin(utilities.BOARD_POWERON_PIN, Pin.OUT)
-reset_pin = Pin(utilities.MODEM_RESET_PIN, Pin.OUT)
-gps_enable = Pin(utilities.MODEM_GPS_ENABLE_GPIO, Pin.OUT)
+try:
+    pwrkey = Pin(utilities.BOARD_PWRKEY_PIN, Pin.OUT)
+except:
+    pass
+
+try:
+    poweron = Pin(utilities.BOARD_POWERON_PIN, Pin.OUT)
+except:
+    pass
+
+try:
+    reset_pin = Pin(utilities.MODEM_RESET_PIN, Pin.OUT)
+except:
+    pass
+
+try:
+    gps_enable = Pin(utilities.MODEM_GPS_ENABLE_GPIO, Pin.OUT)
+except:
+    pass
 
 def send_at_command(command, wait=1):
     SerialAT.write(command + "\r\n")
@@ -54,7 +69,7 @@ def check_sim():
             print("SIM card online")
             break
         else:
-            print("The SIM card is locked, please unlock the SIM card first. Or wait minutes. ")
+            print("The SIM card is no insert or the SIM card is locked, please unlock the SIM card first. Or wait minutes. ")
             time.sleep(3)
 
 def connect_network(apn):
@@ -78,22 +93,28 @@ def connect_network(apn):
         
 def modem_setup():
     # Turn on DC boost to power on the modem
-    poweron.value(1)
-    
+    try:
+        poweron.value(1)
+    except:
+        pass
     # Set modem reset pin ,reset modem
-    reset_pin.value(not utilities.MODEM_RESET_LEVEL)
-    time.sleep(0.1)
-    reset_pin.value(utilities.MODEM_RESET_LEVEL)
-    time.sleep(2.6)
-    reset_pin.value(not utilities.MODEM_RESET_LEVEL)
-    
+    try:
+        reset_pin.value(not utilities.MODEM_RESET_LEVEL)
+        time.sleep(0.1)
+        reset_pin.value(utilities.MODEM_RESET_LEVEL)
+        time.sleep(2.6)
+        reset_pin.value(not utilities.MODEM_RESET_LEVEL)
+    except:
+        pass
     # Turn on modem
-    pwrkey.value(0)
-    time.sleep(0.1)
-    pwrkey.value(1)
-    time.sleep(1)
-    pwrkey.value(0)
-    
+    try:
+        pwrkey.value(0)
+        time.sleep(0.1)
+        pwrkey.value(1)
+        time.sleep(1)
+        pwrkey.value(0)
+    except:
+        pass
     print("Start modem...")
     check_modem()
     check_sim()
@@ -158,23 +179,48 @@ def modem_setup():
     '''
     
     print("Enabling GPS/GNSS/GLONASS")
-    response = send_at_command("AT+CVAUXS=1")
-    print(response)
-    response = send_at_command("AT+CGPSHOT")
-    print(response)
-    while True:
-        gps_enable.value(utilities.MODEM_GPS_ENABLE_LEVEL)
-        response = send_at_command("AT+CGNSSPWR=1")
+    if utilities.CURRENT_PLATFORM == "LILYGO_T_SIM7670G_S3_STAN":
+        response = send_at_command("AT+CGSETV=1,1")
         print(response)
-        if response:
-            break
-        print(".", end="")
-        
-    print("\nGPS Enabled")
+        response = send_at_command("AT+CGPSHOT")
+        print(response)
+        while True:
+            try:
+                gps_enable.value(utilities.MODEM_GPS_ENABLE_LEVEL)
+            except:
+                pass
+            response = send_at_command("AT+CGNSSPWR?")
+            print(response)
+            if response:
+                break
+            print(".", end="")
+            
+        print("\nGPS Enabled")
 
-    # Set GPS Baud to 115200
-    response = send_at_command("AT+CGNSSIPR=115200")
-    print(response)
+        # Set GPS Baud to 115200
+        response = send_at_command("AT+CGNSSIPR=115200")
+        print(response)
+    else:
+        response = send_at_command("AT+CVAUXS=1")
+        print(response)
+        response = send_at_command("AT+CGPSHOT")
+        print(response)
+        while True:
+            try:
+                gps_enable.value(utilities.MODEM_GPS_ENABLE_LEVEL)
+            except:
+                pass
+            response = send_at_command("AT+CGNSSPWR=1")
+            print(response)
+            if response:
+                break
+            print(".", end="")
+            
+        print("\nGPS Enabled")
+
+        # Set GPS Baud to 115200
+        response = send_at_command("AT+CGNSSIPR=115200")
+        print(response)
 
 def get_gps_data():
     while True:
